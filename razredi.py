@@ -1,24 +1,13 @@
 # Razredi
-from datetime import datetime, timedelta
 
-
-def zadnji_delovni_dan(date):
-    # Pretvori datum v numpy datetime64 objekt
-    date = np.datetime64(date)
-    
-    # Odštej en dan
-    vceraj = date - np.timedelta64(1, 'D')
-    
-    # Če je prejšnji dan vikend, odštej dodatne dni
-    if np.is_busday(vceraj) == False:
-        vceraj = np.busday_offset(vceraj, -1, roll='backward')
-    
-    return str(vceraj)[-5:] + '-' + str(vceraj)[:4]
+_datum = input("Vnesi datum zadnjega delovnega dne v obliki [mm:dd:yyyy]: ")
 
 class strankaTrinet:
     
-    def __init__(self, tab):
-        """Konstruktor nam podatke iz podane tabele razvrsti kot naslednje atribute"""
+    def __init__(self, tab: list):
+        """Konstruktor nam podatke iz podane tabele razvrsti kot
+            naslednje atribute.
+        """
         self.opravilna_stevilka = tab[0]
         self.lrn = tab[1]
         self.mrn = tab[3]
@@ -45,12 +34,14 @@ class strankaTrinet:
 
 class strankaObracun:
     
-    def __init__(self, tab):
-        """Konstruktor nam podatke iz podane tabele razvrsti kot naslednje atribute"""
+    def __init__(self, tab: list):
+        """Konstruktor nam podatke iz podane tabele razvrsti kot
+            naslednje atribute.
+        """
         self.awb = tab[0]
         self.mrn = tab[1]
         self.customer_reference = ''
-        self.opravilna_stevilka = tab[2]
+        self.opravilna_stevilka = tab[2].upper()
         self.datum = tab[3].replace('/','-')
         self.customer_name1 = tab[4]
         self.davcna = tab[5]
@@ -76,11 +67,12 @@ class strankaObracun:
         self.cl6 = tab[18]
         self.cl8 = tab[19]
     
-    def spremeni_atribute(self):
+    def spremeni_atribute(self) -> None:
+        """Metoda nam vse atribute objekta nastavi na prazen niz."""
         for k,v in list(self.__dict__.items()):
             self.__dict__[k] = ''
             
-    def cl5_funkcija(self,st1,st2) -> str:
+    def cl5_funkcija(self,st1: str,st2: str) -> str:
         """Funkcija nam poračuna vrednosti dveh parametrov in vrne eno vrednost kot niz"""
         if st1 == 'None' or st1 == '':
             st1 = '0'
@@ -100,12 +92,17 @@ class strankaObracun:
             return '15'
         return str(st * 0.025)
     
-    def glavna_metoda(self):
-        """Metoda nam spremeni atribute objekta. Mozno je tudi da metoda klice druge metode znotraj
-            objekta.
+    def glavna_metoda(self) -> None:
+        """Metoda nam spremeni atribute objekta glede na podana pravila.
+            Metoda ne vrne ničesar.
         """
+        if self.mrn[:4] == '4611' or self.mrn[:4] == '4211':
+            self.spremeni_atribute()
+            # predčasno zaključimo metodo
+            return None
+        
         if self.datum == 'None':
-            self.datum = '9-3-2024'
+            self.datum = globals()[_datum]
         
         if self.cl4 == 'H3' or self.cl4 == 'H4':
             self.opravilna_stevilka = 'ZAČASNI UVOZ 42'
@@ -121,13 +118,13 @@ class strankaObracun:
         elif self.cl8 == 'DDP':
             self.opravilna_stevilka = 'DDP'
         
-        if 'ROD' in self.opravilna_stevilka.upper():
+        if 'ROD' in self.opravilna_stevilka:
             self.opravilna_stevilka = 'CPT'
         
-        elif 'DDP' in self.opravilna_stevilka.upper():
+        elif 'DDP' in self.opravilna_stevilka:
             self.opravilna_stevilka = 'DDP'
         
-        elif 'SANI' in self.opravilna_stevilka.upper():
+        elif 'SANI' in self.opravilna_stevilka:
             self.opravilna_stevilka = 'SANITARC/DRUG VLADNI ORGAN'
         
         elif 'VRAČ' not in self.opravilna_stevilka and 'ZAČA' not in self.opravilna_stevilka:
@@ -137,22 +134,27 @@ class strankaObracun:
         
         self.cl5 = self.cl5_funkcija(self.vtb,self.dta)
         
-        if self.mrn[:4] == '4611' or self.mrn[:4] == '4211':
-            self.spremeni_atribute()
+        # Naslednji pogoji morajo biti na koncu saj objektu
+        # še vedno spreminjamo atribute in nekateri pogoji so
+        # odvisni od slednjih
         if self.cg1 != 'None' and self.cg1 == self.customer_name2 and self.opravilna_stevilka == 'CPT':
             self.spremeni_atribute()
+            return None
         if self.cg1 != 'None' and self.cg1 == self.customer_name2 and self.opravilna_stevilka == 'DDP':
             self.spremeni_atribute()
+            return None
             
         if self.cg1 != 'None' and self.cl5 == '0' and self.opravilna_stevilka == 'CPT':
             self.spremeni_atribute()
+            return None
         if self.cg1 != 'None' and self.cl5 == '0' and self.opravilna_stevilka == 'DDP':
             self.spremeni_atribute()
+            return None
         
         self.hf = ''
         self.cl0 = ''
         self.cl3 = ''
-        # vcasih nizi niso isti zato jih ne mores brisat!!!
+        # včasih nizi niso isti zato jih ne moreš brisat!!!
         # self.cg1 = ''
         self.cl4 = ''
         self.cl6 = ''
