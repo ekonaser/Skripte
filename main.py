@@ -107,7 +107,7 @@ class strankaObracun:
             return None
         
         if self.datum == 'None':
-            self.datum = globals()[_datum]
+            self.datum = _datum
         
         if self.cl4 == 'H3' or self.cl4 == 'H4':
             self.opravilna_stevilka = 'ZAČASNI UVOZ 42'
@@ -221,7 +221,7 @@ def main():
             obracun.write('\n')
     obracun.close()
 
-    datoteka = _danasnji_datum[0]+' '+_danasnji_datum[1]+''+_danasnji_datum[2]+' obracun.csv'
+    datoteka = _danasnji_datum[0]+' '+_danasnji_datum[1]+' '+_danasnji_datum[2]+' obracun.csv'
     obracun_koncno = open(datoteka,'w',encoding='UTF-8')
     obracun_koncno.write('Con Note;Customer reference;MRN;Date;Opravilna stevilka;Customer name;VAT ID;customer_name;VT-B00;DT-A00;HF;CL0;CL3;CL5;AD0;AF2;CC1;CG1;CL4;CL6;CL8\n')
     with open('obracun.csv','r',encoding='UTF-8') as dat:
