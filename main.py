@@ -123,14 +123,17 @@ class strankaObracun:
         elif self.cl8 == 'DDP':
             self.opravilna_stevilka = 'DDP'
         
-        if 'ROD' in self.opravilna_stevilka:
+        if 'STOR' in self.opravilna_stevilka:
+            self.opravilna_stevilka = "VRAČILO/STORAGE 42"
+
+        elif 'SANI' in self.opravilna_stevilka:
+            self.opravilna_stevilka = 'SANITARC/DRUG VLADNI ORGAN'
+
+        elif 'ROD' in self.opravilna_stevilka:
             self.opravilna_stevilka = 'CPT'
         
         elif 'DDP' in self.opravilna_stevilka:
             self.opravilna_stevilka = 'DDP'
-        
-        elif 'SANI' in self.opravilna_stevilka:
-            self.opravilna_stevilka = 'SANITARC/DRUG VLADNI ORGAN'
         
         elif 'VRAČ' not in self.opravilna_stevilka and 'ZAČA' not in self.opravilna_stevilka:
             self.opravilna_stevilka = 'CPT'
@@ -192,7 +195,7 @@ def main():
                                         objekt.dajatev,
                                         objekt.op,
                                         objekt.st_po,
-                                        '22.50',
+                                        "None",
                                         "None",
                                         objekt.ulica,
                                         objekt.posta,
