@@ -76,7 +76,14 @@ class strankaObracun:
         """Metoda nam vse atribute objekta nastavi na prazen niz."""
         for k,v in list(self.__dict__.items()):
             self.__dict__[k] = ''
-            
+    
+    def cl3_funkcija(self, st):
+        if st == 'None' or st == '':
+            return ''
+        if int(st) > 5:
+            return str((int(st)-1) * 8)
+        return ''
+    
     def cl5_funkcija(self,st1: str,st2: str) -> str:
         """Funkcija nam poračuna vrednosti dveh parametrov in vrne eno vrednost kot niz"""
         if st1 == 'None' or st1 == '':
@@ -109,9 +116,9 @@ class strankaObracun:
         if self.datum == 'None':
             self.datum = _datum
         
-        if self.cl4 == 'H3' or self.cl4 == 'H4':
+        if self.cl4 == 'H3' or self.cl4 == 'H4' and 'STOR' not in self.opravilna_stevilka or 'SANI' not in self.opravilna_stevilka:
             self.opravilna_stevilka = 'ZAČASNI UVOZ 42'
-        if self.cl6 == '61':
+        if self.cl6 == '61' and 'STOR' not in self.opravilna_stevilka or 'SANI' not in self.opravilna_stevilka:
             self.opravilna_stevilka = 'VRAČILA 42'
 
         if self.hf == 'Da':
@@ -145,22 +152,23 @@ class strankaObracun:
         # Naslednji pogoji morajo biti na koncu saj objektu
         # še vedno spreminjamo atribute in nekateri pogoji so
         # odvisni od slednjih
-        if self.cg1 != 'None' and self.cg1 == self.customer_name2 and self.opravilna_stevilka == 'CPT':
+        if self.cg1 != 'None' and self.cg1 == self.customer_name2 and self.opravilna_stevilka == 'CPT' and self.cl0 != '0':
             self.spremeni_atribute()
             return None
-        if self.cg1 != 'None' and self.cg1 == self.customer_name2 and self.opravilna_stevilka == 'DDP':
+        if self.cg1 != 'None' and self.cg1 == self.customer_name2 and self.opravilna_stevilka == 'DDP' and self.cl0 != '0':
             self.spremeni_atribute()
             return None
             
-        if self.cg1 != 'None' and self.cl5 == '0' and self.opravilna_stevilka == 'CPT':
+        if self.cg1 != 'None' and self.cl5 == '0' and self.opravilna_stevilka == 'CPT' and self.cl0 != '0':
             self.spremeni_atribute()
             return None
-        if self.cg1 != 'None' and self.cl5 == '0' and self.opravilna_stevilka == 'DDP':
+        if self.cg1 != 'None' and self.cl5 == '0' and self.opravilna_stevilka == 'DDP' and self.cl0 != '0':
             self.spremeni_atribute()
             return None
         
         self.hf = ''
-        self.cl0 = ''
+        # self.cl0 je stevilka ki eskalira za 8 takrat ko je vec kot 5 zato je ne smes spremeniti
+        # self.cl0 = ''
         self.cl3 = ''
         # včasih nizi niso isti zato jih ne moreš brisat!!!
         # self.cg1 = ''
@@ -257,7 +265,7 @@ def main():
     obracun_koncno.close()
     # Naslednjo vrstico zakomentiraj v kolikor želiš gledati
     # posredno datoteko 'obracun.csv'
-    os.remove(os.getcwd()+'//'+'obracun.csv')
+    # os.remove(os.getcwd()+'//'+'obracun.csv')
 
 if __name__ == '__main__':
     zacetni_cas = time.time()
