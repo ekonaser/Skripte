@@ -2,11 +2,13 @@ import csv
 import time
 import os
 
-# Razredi
 
-_datum = input("Vnesi datum zadnjega delovnega dne v obliki [mm-dd-yyyy]: ")
+_datum = input("Vnesi datum zadnjega delovnega dne v obliki [dd-mm-yyyy]: ")
 _danasnji_datum = input("Vnesi današnji datum v obliki [dd-mm-yyyy]: ").split(sep='-')
 
+# razred trinet
+######################################################################################################################
+######################################################################################################################
 class strankaTrinet:
     
     def __init__(self, tab: list):
@@ -14,29 +16,34 @@ class strankaTrinet:
             naslednje atribute.
         """
         self.opravilna_stevilka = tab[0]
-        self.lrn = tab[1]
-        self.mrn = tab[3]
-        self.mrn_datum = tab[4]
-        self.st = tab[10]
-        self.po = tab[13]
-        self.op = tab[19]
-        if tab[21] != 'None' and int(tab[21]) >= 6:
-            self.st_po = str((int(tab[21]) - 5) * 8)
+        self.mrn = tab[1]
+        self.mrn_datum = tab[2]
+        self.st = tab[3]
+        self.po = tab[4]
+        self.op = tab[5]
+        if tab[6] != 'None' and int(tab[6]) >= 6:
+            self.st_po = str((int(tab[6]) - 5) * 8) + '.00'
         else:
             self.st_po = '0'
-        self.dajatev = tab[33]
-        self.davek = tab[34]
-        self.vrsta3 = tab[42]
-        if tab[73] == 'None' or tab[73][-1:] == 'O' or 'SIA' in tab[73]:
+        self.dajatev = tab[7]
+        self.davek = tab[8]
+        self.vrsta3 = tab[9]
+        if tab[10] == 'None' or tab[10][-1:] == 'O' or 'SIA' in tab[10]:
             self.eori3 = 'SIA5555555'
         else:
-            self.eori3 = tab[73]
-        self.naziv1 = tab[82]
-        self.ulica = tab[77]
-        self.posta = tab[78]
-        self.kraj = tab[79]
-        self.naziv3 = tab[74]
+            self.eori3 = tab[10]
+        self.naziv1 = tab[11]
+        self.ulica = tab[12]
+        self.posta = tab[13]
+        self.kraj = tab[14]
+        self.naziv3 = tab[15]
 
+######################################################################################################################
+######################################################################################################################
+
+# razred obracun
+######################################################################################################################
+######################################################################################################################
 class strankaObracun:
     
     def __init__(self, tab: list):
@@ -54,11 +61,11 @@ class strankaObracun:
         if tab[7] == 'None':
             self.vtb = ''
         else:
-            self.vtb = tab[7]
+            self.vtb = tab[7].replace('.','').replace(',','.')
         if tab[8] == 'None':
             self.dta = ''
         else:
-            self.dta = tab[8]
+            self.dta = tab[8].replace('.','').replace(',','.')
         # samoobdavcitev
         self.hf = tab[9]
         self.cl0 = tab[10]
@@ -77,21 +84,14 @@ class strankaObracun:
         for k,v in list(self.__dict__.items()):
             self.__dict__[k] = ''
     
-    def cl3_funkcija(self, st):
-        if st == 'None' or st == '':
-            return ''
-        if int(st) > 5:
-            return str((int(st)-1) * 8)
-        return ''
-    
     def cl5_funkcija(self,st1: str,st2: str) -> str:
         """Funkcija nam poračuna vrednosti dveh parametrov in vrne eno vrednost kot niz"""
         if st1 == 'None' or st1 == '':
             st1 = '0'
         if st2 == 'None' or st2 == '':
             st2 = '0'
-        st1 = float(st1.replace(',',''))
-        st2 = float(st2.replace(',',''))
+        st1 = float(st1)
+        st2 = float(st2)
         st = st1 + st2
         if st < 50:
             poracunanast = st * 0.3
@@ -99,10 +99,10 @@ class strankaObracun:
                 return '0'
             elif poracunanast <= 5:
                 return '5'
-            return str(poracunanast)
+            return f"{poracunanast:.2f}"
         elif st >= 50 and st <= 600:
             return '15'
-        return str(st * 0.025)
+        return f"{(st * 0.025):.2f}"
     
     def glavna_metoda(self) -> None:
         """Metoda nam spremeni atribute objekta glede na podana pravila.
@@ -116,9 +116,9 @@ class strankaObracun:
         if self.datum == 'None':
             self.datum = _datum
         
-        if self.cl4 == 'H3' or self.cl4 == 'H4' and 'STOR' not in self.opravilna_stevilka or 'SANI' not in self.opravilna_stevilka:
+        if self.cl4 == 'H3' or self.cl4 == 'H4' and 'STOR' not in self.opravilna_stevilka and 'SANI' not in self.opravilna_stevilka:
             self.opravilna_stevilka = 'ZAČASNI UVOZ 42'
-        if self.cl6 == '61' and 'STOR' not in self.opravilna_stevilka or 'SANI' not in self.opravilna_stevilka:
+        if self.cl6 == '61' and 'STOR' not in self.opravilna_stevilka and 'SANI' not in self.opravilna_stevilka:
             self.opravilna_stevilka = 'VRAČILA 42'
 
         if self.hf == 'Da':
@@ -152,29 +152,33 @@ class strankaObracun:
         # Naslednji pogoji morajo biti na koncu saj objektu
         # še vedno spreminjamo atribute in nekateri pogoji so
         # odvisni od slednjih
-        if self.cg1 != 'None' and self.cg1 == self.customer_name2 and self.opravilna_stevilka == 'CPT' and self.cl0 != '0':
+        if self.cg1 != 'None' and self.cg1 == self.customer_name2 and self.opravilna_stevilka == 'CPT' and self.cl0 == '0':
             self.spremeni_atribute()
             return None
-        if self.cg1 != 'None' and self.cg1 == self.customer_name2 and self.opravilna_stevilka == 'DDP' and self.cl0 != '0':
+        if self.cg1 != 'None' and self.cg1 == self.customer_name2 and self.opravilna_stevilka == 'DDP' and self.cl0 == '0':
             self.spremeni_atribute()
             return None
             
-        if self.cg1 != 'None' and self.cl5 == '0' and self.opravilna_stevilka == 'CPT' and self.cl0 != '0':
+        if self.cg1 != 'None' and self.cl5 == '0' and self.opravilna_stevilka == 'CPT' and self.cl0 == '0':
             self.spremeni_atribute()
             return None
-        if self.cg1 != 'None' and self.cl5 == '0' and self.opravilna_stevilka == 'DDP' and self.cl0 != '0':
+        if self.cg1 != 'None' and self.cl5 == '0' and self.opravilna_stevilka == 'DDP' and self.cl0 == '0':
             self.spremeni_atribute()
             return None
         
-        self.hf = ''
-        # self.cl0 je stevilka ki eskalira za 8 takrat ko je vec kot 5 zato je ne smes spremeniti
-        # self.cl0 = ''
+        #self.hf = ''
+        # self.cl0 je stevilka ki eskalira za 8 krat ko je vec kot 5 zato je ne smes spremeniti
+        # poracuna se ze v razredu [razredTrinet]
+        self.cl0 = '' if self.cl0 == '0' or self.cl0 == 'None' else self.cl0
         self.cl3 = ''
         # včasih nizi niso isti zato jih ne moreš brisat!!!
         # self.cg1 = ''
-        self.cl4 = ''
-        self.cl6 = ''
-        self.cl8 = '\n'
+        #self.cl4 = ''
+        #self.cl6 = ''
+        #self.cl8 = '\n'
+
+######################################################################################################################
+######################################################################################################################
 
 def zamenjaj_z_none(row):
     return ['None' if not value else value for value in row]
@@ -198,7 +202,7 @@ def main():
                                         objekt.mrn_datum,
                                         '=IF(E2="DDP","SHIPPER","RECEIVER")',
                                         objekt.eori3,
-                                        objekt.naziv3,
+                                        objekt.naziv1,
                                         objekt.davek,
                                         objekt.dajatev,
                                         objekt.op,
@@ -208,7 +212,7 @@ def main():
                                         objekt.ulica,
                                         objekt.posta,
                                         objekt.kraj,
-                                        objekt.naziv1,
+                                        objekt.naziv3,
                                         objekt.st,
                                         objekt.po,
                                         objekt.vrsta3]}
@@ -239,7 +243,7 @@ def main():
         for vr in dat:
             objekt = strankaObracun(vr.split(sep=';'))
             objekt.glavna_metoda()
-            sez =[  objekt.awb,
+            sez = [ objekt.awb,
                     objekt.customer_reference,
                     objekt.mrn,
                     objekt.datum,
@@ -259,7 +263,7 @@ def main():
                     objekt.cg1,
                     objekt.cl4,
                     objekt.cl6,
-                    objekt.cl8  ]
+                    objekt.cl8 ]
             if sez[0] != '':
                 obracun_koncno.write(';'.join(sez))
     obracun_koncno.close()
