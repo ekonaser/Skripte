@@ -2,9 +2,12 @@ import csv
 import time
 import os
 
+# funkcije
+######################################################################################################################
+######################################################################################################################
 
-_datum = input("Vnesi datum zadnjega delovnega dne v obliki [dd-mm-yyyy]: ")
-_danasnji_datum = input("Vnesi današnji datum v obliki [dd-mm-yyyy]: ").split(sep='-')
+def zamenjaj_z_none(row):
+    return ['None' if not value else value for value in row]
 
 # razred trinet
 ######################################################################################################################
@@ -180,9 +183,6 @@ class strankaObracun:
 ######################################################################################################################
 ######################################################################################################################
 
-def zamenjaj_z_none(row):
-    return ['None' if not value else value for value in row]
-
 def main():
     with open('trinet.csv', 'r', newline='', encoding="UTF-8") as infile:
         reader = csv.reader(infile, delimiter=';')
@@ -236,7 +236,7 @@ def main():
             obracun.write('\n')
     obracun.close()
 
-    datoteka = _danasnji_datum[0]+' '+_danasnji_datum[1]+' '+_danasnji_datum[2]+' obracun.csv'
+    datoteka = _danasnji_datum[0]+' '+_danasnji_datum[1]+' '+_danasnji_datum[2]+' OBRAČUN.csv'
     obracun_koncno = open(datoteka,'w',encoding='UTF-8')
     obracun_koncno.write('Con Note;Customer reference;MRN;Date;Opravilna stevilka;Customer name;VAT ID;customer_name;VT-B00;DT-A00;HF;CL0;CL3;CL5;AD0;AF2;CC1;CG1;CL4;CL6;CL8\n')
     with open('obracun.csv','r',encoding='UTF-8') as dat:
@@ -269,9 +269,11 @@ def main():
     obracun_koncno.close()
     # Naslednjo vrstico zakomentiraj v kolikor želiš gledati
     # posredno datoteko 'obracun.csv'
-    # os.remove(os.getcwd()+'//'+'obracun.csv')
+    os.remove(os.getcwd()+'\\'+'obracun.csv')
 
 if __name__ == '__main__':
+    _datum = input("Vnesi datum zadnjega delovnega dne v obliki [dd.mm.yyyy]: ")
+    _danasnji_datum = [f"{time.gmtime()[2]:02d}", f"{time.gmtime()[1]:02d}", f"{time.gmtime()[0]}"]
     zacetni_cas = time.time()
     main()
     koncni_cas = time.time()
