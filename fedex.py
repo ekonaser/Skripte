@@ -77,6 +77,15 @@ def fedex() -> None:
         'valign': 'vcenter',
         'text_wrap': True
     })
+    
+    special_format = workbook.add_format({
+        'border': 1,
+        'font_size': 8,
+        'align': 'center',
+        'valign': 'vcenter',
+        'text_wrap': True,
+        'num_format': '000'
+    })
 
     celostevilo_format = workbook.add_format({
         'align': 'right',
@@ -101,6 +110,7 @@ def fedex() -> None:
     })
 
     oranzna = workbook.add_format({'bg_color': '#FFA500', 'border': 1,'text_wrap': True,'font_size': 8,'align': 'center','valign': 'vcenter',})
+    oranzna_spec = workbook.add_format({'bg_color': '#FFA500', 'border': 1,'text_wrap': True,'font_size': 8,'align': 'center','valign': 'vcenter','num_format': '000'})
     zelena = workbook.add_format({'bg_color': '#00CD00', 'border': 1,'text_wrap': True,'font_size': 8,'align': 'center','valign': 'vcenter',})
     rod = workbook.add_format({'bg_color': '#FFFF00'})
 
@@ -156,12 +166,17 @@ def fedex() -> None:
     for y in range(10,27):
         worksheet.write(2,y,prva_vrstica.pop(0),prva_format)
 
-    for y in range(0,27):
+    for y in range(0,11):
         worksheet.write(3,y,druga_vrstica[y],druga_format)
+    
+    for y in range(11,26):
+        worksheet.write(3,y,int(druga_vrstica[y]),special_format)
+    
+    worksheet.write(3,26,druga_vrstica[26],druga_format)
 
     # oranzne celice
     worksheet.write(2,25,'VAT on\nAncillary\nFees (@\n22%)',oranzna)
-    worksheet.write(3,25,'940',oranzna)
+    worksheet.write(3,25,int('940'),oranzna_spec)
 
     # zelene celice
     worksheet.write(2,26,'Total\nCollected\nfrom\nCustomer',zelena)
