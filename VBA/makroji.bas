@@ -4,6 +4,7 @@ Function Cl05_Funkcija(st1 As Variant, st2 As Variant) As Variant
     ' Funkcija nam dve števili poracuna ter poracunano
     ' število vrne
     Dim st As Double
+    Dim poracunana As Double
     If CStr(st1) = "" Or CStr(st1) = "None" Then
         st1 = 0
     End If
@@ -11,13 +12,13 @@ Function Cl05_Funkcija(st1 As Variant, st2 As Variant) As Variant
         st2 = 0
     End If
     st = CDbl(st1) + CDbl(st2)
-    If st = 0 Then
-        ' vrnemo prazen niz v tem primeru
-        Cl05_Funkcija = ""
-    ElseIf st < 5 Then
-        Cl05_Funkcija = 5#
-    ElseIf st <= 50 Then
-        Cl05_Funkcija = st * 0.3
+    If st < 50 Then
+        poracunana = st * 0.3
+        If poracunana <= 5 Then
+            Cl05_Funkcija = 5
+        Else
+            Cl05_Funkcija = poracunana
+        End If
     ElseIf st <= 600 Then
         Cl05_Funkcija = 15#
     Else
