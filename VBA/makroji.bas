@@ -14,8 +14,10 @@ Function Cl05_Funkcija(st1 As Variant, st2 As Variant) As Variant
     st = CDbl(st1) + CDbl(st2)
     If st < 50 Then
         poracunana = st * 0.3
-        If poracunana <= 5 Then
-            Cl05_Funkcija = 5
+        If poracunana = 0 Then
+            Cl05_Funkcija = 0#
+        ElseIf poracunana <= 5 Then
+            Cl05_Funkcija = 5#
         Else
             Cl05_Funkcija = poracunana
         End If
