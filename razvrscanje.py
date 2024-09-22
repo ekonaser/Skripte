@@ -2,7 +2,6 @@ import xlsxwriter
 import csv
 import time
 import os
-import requests
 
 #########################################################################################
 def isfloat(st):
@@ -19,7 +18,7 @@ def zamenjaj_z_none(row):
 def formati(workbook) -> dict:
     """Funkcija nam doda različne formate v excelov zvezek, ter vrne slovar teh formatov"""
     # Razlicni formati za celice
-    slo_formatov ={}
+    slo_formatov = {}
     slo_formatov['merge_format'] = workbook.add_format({
         'bold': 1,
         'border': 1,
@@ -86,6 +85,17 @@ def formati(workbook) -> dict:
         'num_format': '0.00',
         'bg_color': '#FFFF00'
     })
+    
+    slo_formatov['acc_no_rod'] = workbook.add_format({
+        'align': 'right',
+        'num_format': '000000000',
+        'bg_color': '#FFFF00'
+    })
+    
+    slo_formatov['acc_no'] = workbook.add_format({
+        'align': 'right',
+        'num_format': '000000000'
+    })
 
     slo_formatov['oranzna'] = workbook.add_format({'bg_color': '#FFA500', 'border': 1,'text_wrap': True,'font_size': 8,'align': 'center','valign': 'vcenter',})
     slo_formatov['oranzna_spec'] = workbook.add_format({'bg_color': '#FFA500', 'border': 1,'text_wrap': True,'font_size': 8,'align': 'center','valign': 'vcenter','num_format': '000'})
@@ -112,21 +122,13 @@ def razvrscanje_private_individuals() -> None:
             break
         for vr in dat:
             sez = vr.replace('\n','').split(sep=';')
-            if len(sez[0]) == 11 and sez[6] == 'SIA5555555':
+            if len(sez[0]) == 11 and sez[6] == 'SIA5555555' and sez[4] != 'DDP':
                 private_individuals.write(sez[0]+';'+sez[1]+';'+sez[2]+';'+sez[3]+';'+sez[14]+';'+sez[15]+';'+sez[16]+';'+'24914'+';'+sez[4]+';'+sez[6]+';'+sez[7]+';'+sez[8]+';'+sez[9]+';'+sez[10]+';'+sez[11]+';'+sez[12]+';'+sez[13]+'\n')
     private_individuals.close()
 
 def razvrscanje_navadna() -> None:
     slo_strank = {}
     navadna = open('navadna.csv','w',encoding='utf-8')
-    url = 'https://github.com/ekonaser/obracuni/raw/main/navadna_acc.csv'
-    
-    response = requests.get(url)
-    csv_content = response.content.decode('utf-8')
-    
-    with open('navadna_acc.csv', 'w', encoding='utf-8') as file:
-        file.write(csv_content)
-    
     with open('navadna_acc.csv', 'r', encoding='utf-8') as dat:
         for vr in dat:
             sez = vr.replace('\n','').split(sep=';')
@@ -136,7 +138,7 @@ def razvrscanje_navadna() -> None:
             break
         for vr in dat:
             sez = vr.replace('\n','').split(sep=';')
-            acc_n = 'None'
+            acc_n = 'ACC N/A'
             if sez[6] in slo_strank:
                 acc_n = slo_strank[sez[6]]
             if len(sez[0]) == 11 and sez[4] in {'CPT', 'ZAČASNI UVOZ 42', 'VRAČILA 42', 'SANITARC/DRUG VLADNI ORGAN', 'TRANZIT'} and sez[6] != 'SIA5555555':
@@ -275,7 +277,7 @@ def fedex() -> None:
                         worksheet.write(row_num, col_num, col_data, slo_format['rod'])
                 for col_num in range(17,27):
                     if col_num == 25:
-                        worksheet.write(row_num, col_num, float(3.30), slo_format['decst_format_rod'])
+                        worksheet.write(row_num, col_num, float(row_data[-1].replace(',','.'))*0.22, slo_format['decst_format_rod'])
                     else:
                         worksheet.write(row_num, col_num, '', slo_format['rod'])
                     
@@ -291,6 +293,18 @@ def fedex() -> None:
                         worksheet.write(row_num, col_num, float(col_data.replace(',','.')), slo_format['decst_format'])
                     else:
                         worksheet.write(row_num, col_num, col_data)
+                if row_data[7] == 'VRAČILA 42':
+                    worksheet.write(row_num, 18, float(42.00), slo_format['decst_format'])
+                    worksheet.write(row_num, 7, 'CPT')
+                elif row_data[7] == 'SANITARC/DRUG VLADNI ORGAN':
+                    worksheet.write(row_num, 13, float(40.00), slo_format['decst_format'])
+                    worksheet.write(row_num, 7, 'CPT')
+                elif row_data[7] == 'ZAČASNI UVOZ 42':
+                    worksheet.write(row_num, 19, float(42.00), slo_format['decst_format'])
+                    worksheet.write(row_num, 7, 'CPT')
+                elif row_data[7] == 'TRANZIT':
+                    worksheet.write(row_num, 21, float(45.00), slo_format['decst_format'])
+                    worksheet.write(row_num, 7, 'CPT')
     worksheet.autofit()
 
     # Zapremo zvezek
@@ -303,8 +317,25 @@ def isb_out() -> None:
     # Ustvarimo excelov zvezek in prvi zavihek
     workbook = xlsxwriter.Workbook('VAT AND DUTIES ' + _danasnji_datum2[0] + '.' + _danasnji_datum2[1] + '.' + _danasnji_datum2[2] +  ' ISB OUT.xlsx')
     worksheet = workbook.add_worksheet('TNT')
+    worksheet2 = workbook.add_worksheet('stranke')
+    
+    stranke = [['9610','Z','105','Express Turkey'],
+               ['8569','Z','105','IS Atherstone UK, TNT Express ICS Limited'],
+               ['33301','Z','105','Express Bulgaria - Serbia'],
+               ['8892','Z','105','Express Switzerland'],
+               ['20305','Z','105','Express Norway'],
+               ['9509','Z','105','Express Australia'],
+               ['10486','Z','105','Express Korea']
+    ]
 
     slo_format = formati(workbook)
+    
+    for x in range(len(stranke)):
+        for y in range(len(stranke[x])):
+            if y == 0 or y == 2:
+                worksheet2.write(x, y, int(stranke[x][y]), slo_format['celostevilo_format'])
+            else:
+                worksheet2.write(x, y, stranke[x][y])
     
     prva_vrstica = ['Description',
                     'VAT',
@@ -398,8 +429,25 @@ def isb_out() -> None:
                         worksheet.write(row_num, col_num, float(col_data.replace(',','.')), slo_format['decst_format'])
                     else:
                         worksheet.write(row_num, col_num, col_data)
+            for x in range(5,9):
+                if x == 5:
+                    worksheet.write_formula(row_num, x, f'=IF(I{row_num+1}="Express Turkey",9610,'+\
+                                                        f'IF(I{row_num+1}="IS Atherstone UK, TNT Express ICS Limited",8569,'+\
+                                                        f'IF(I{row_num+1}="Express Bulgaria - Serbia",33301,'+\
+                                                        f'IF(I{row_num+1}="Express Switzerland",8892,'+\
+                                                        f'IF(I{row_num+1}="Express Norway",20305,'+\
+                                                        f'IF(I{row_num+1}="Express Australia",9509,'+\
+                                                        f'IF(I{row_num+1}="Express Korea",10486,"")))))))')
+                elif x == 8:
+                    worksheet.data_validation(f"I{row_num+1}", {
+                        'validate': 'list',
+                        'source': '=stranke!$D$1:$D$7',
+                    })
+            worksheet.write(row_num, 6, 'Z')
+            worksheet.write(row_num, 7, 105, slo_format['celostevilo_format'])
     
     worksheet.autofit()
+    worksheet2.hide()
 
     # zapremo zvezek
     workbook.close()
@@ -479,6 +527,12 @@ def navadna() -> None:
             row_data = [niz if niz != 'None' else '' for niz in row_data]
             if 'ROD' in row_data[2]:
                 for col_num, col_data in enumerate(row_data):
+                    if col_num == 4:
+                        if col_data.isnumeric():
+                            worksheet.write(row_num, col_num, int(col_data), slo_format['acc_no_rod'])
+                        else:
+                            worksheet.write(row_num, col_num, col_data, slo_format['acc_no_rod'])
+                        continue
                     if col_data.isnumeric() and col_num == 0:
                         worksheet.write(row_num, col_num, int(col_data), slo_format['celostevilo_format_rod'])
                         continue
@@ -496,7 +550,13 @@ def navadna() -> None:
                 
             else:
                 for col_num, col_data in enumerate(row_data):
-                    if col_data.isnumeric() and col_num == 0 or col_num == 4:
+                    if col_num == 4:
+                        if col_data.isnumeric():
+                            worksheet.write(row_num, col_num, int(col_data), slo_format['acc_no'])
+                        else:
+                            worksheet.write(row_num, col_num, col_data, slo_format['acc_no'])
+                        continue
+                    if col_data.isnumeric() and col_num == 0:
                         worksheet.write(row_num, col_num, int(col_data), slo_format['celostevilo_format'])
                         continue
                     if col_data.isnumeric():
@@ -646,4 +706,4 @@ if __name__ == '__main__':
     os.remove(os.getcwd() + '\\' + 'private_individuals.csv')
     
     os.remove(os.getcwd() + '\\' + 'obracun_precisceno.csv')
-    os.remove(os.getcwd() + '\\' + 'navadna_acc.csv')
+    #os.remove(os.getcwd() + '\\' + 'navadna_acc.csv')
