@@ -4,6 +4,7 @@ import csv
 import xlsxwriter
 import itertools
 import time
+import pprint
 
 from PyQt6.QtWidgets import (
     QApplication, QWidget, QPushButton, QVBoxLayout, QMainWindow,
@@ -12,6 +13,7 @@ from PyQt6.QtWidgets import (
 from PyQt6.QtGui import QAction, QPixmap
 from PyQt6.QtCore import Qt
 
+# GLOBALNE MNOZICE
 # mno_odstopov je mnozica ki jo uporabljamo za primerjanje
 mno_odstopov = set()
 slovar_deklarantov = {}
@@ -256,6 +258,8 @@ class mojaAplikacija(QMainWindow):
         self.setWindowTitle('Distribucija')
         self.setGeometry(500, 500, 500, 500)
         
+        self.trenutna_datoteka = None
+        
         # postavitev
         postavitev = QVBoxLayout()
         
@@ -273,12 +277,14 @@ class mojaAplikacija(QMainWindow):
         deklaranti = QAction("Dodaj deklarante", self)
         izhod = QAction("Izhod", self)
         uvozi_csv = QAction("Uvozi CSV/txt", self)
-        shrani_podatke = QAction("Shrani podatke", self)
+        shrani_podatke = QAction("Dodaj podatke", self)
+        shrani_podatke_kot = QAction("Shrani kot", self)
         shrani_kot_txt = QAction("Shrani kot TXT", self)
         shrani_kot_excel = QAction("Shrani kot xslx", self)
         datotecni_meni1.addAction(deklaranti)
         datotecni_meni1.addAction(uvozi_csv)
         datotecni_meni1.addAction(shrani_podatke)
+        datotecni_meni1.addAction(shrani_podatke_kot)
         datotecni_meni1.addSeparator()
         datotecni_meni1.addAction(shrani_kot_txt)
         datotecni_meni1.addAction(shrani_kot_excel)
@@ -297,7 +303,8 @@ class mojaAplikacija(QMainWindow):
         postavitev.addWidget(self.izracunaj)
         
         self.razdeli_deklarantom = QPushButton("Razdeli med izbrane deklarante")
-        self.razdeli_deklarantom.clicked.connect(self.razdeli_med_deklarante)
+        # zato da gumb pravilno deluje moramo najprej preveriti mnozice
+        self.razdeli_deklarantom.clicked.connect(self.preveri_mnozice)
         postavitev.addWidget(self.razdeli_deklarantom)
         
         # menu ukazi
@@ -306,7 +313,11 @@ class mojaAplikacija(QMainWindow):
         
         uvozi_csv.triggered.connect(self.izberi_podatke)
         
-        shrani_podatke.triggered.connect(self.shrani_CSV_podatke)
+        shrani_podatke.triggered.connect(self.shrani_nove_podatke)
+        
+        shrani_podatke_kot.triggered.connect(self.shrani_CSV_podatke_kot)
+        
+        shrani_kot_txt.triggered.connect(self.shrani_kot_TXT)
         
         shrani_kot_excel.triggered.connect(self.shrani_kot_XSLX)
         
@@ -346,7 +357,23 @@ class mojaAplikacija(QMainWindow):
         self.uvozno_okno = uvoznoOknoCSV(ttb)
         self.uvozno_okno.show()
     
-    def shrani_CSV_podatke(self):
+    def shrani_nove_podatke(self):
+        """Metoda nam doda v ze obstojeco datoteko podatke v kolikor ta obstaja"""
+        if self.trenutna_datoteka not in {None, ''}:
+            tab = zip(*slovar_CSV_podatkov.values())
+            with open(self.trenutna_datoteka, 'a', encoding='utf-8') as dat:
+                for nab0 in tab:
+                    sporocilo = QMessageBox()
+                    sporocilo.setWindowTitle("Dodano")
+                    sporocilo.setText("Dodali ste: " + ' '.join(nab0))
+                    sporocilo.exec()
+                    break
+                for nab in tab:
+                    dat.write(';'.join(nab).replace('None','') + '\n')
+        else:
+            self.shrani_CSV_podatke_kot()
+    
+    def shrani_CSV_podatke_kot(self):
         datoteka = QFileDialog.getSaveFileName(self, 'Shrani kot', os.getcwd(), 'Vrsta datoteke (*.txt *.csv)')
         # transponiramo nazaj podatke zapisane v slovarju
         if datoteka[0] != '':
@@ -354,6 +381,8 @@ class mojaAplikacija(QMainWindow):
             tab = zip(*slovar_CSV_podatkov.values())
             for nab in tab:
                 dat.write(';'.join(nab).replace('None','') + '\n')
+            dat.close()
+        self.trenutna_datoteka = datoteka[0]
     
     def distribucija(self):
         """Metoda nam naredi distribucijo"""
@@ -382,6 +411,15 @@ class mojaAplikacija(QMainWindow):
             self.uvozno_okno = izberiCSV(nova_tab2)
             self.uvozno_okno.show()
     
+    def preveri_mnozice(self):
+        if mno_odstopi or mno_fiz or mno_pod:
+            self.razdeli_med_deklarante()
+        else:
+            sporocilo = QMessageBox()
+            sporocilo.setWindowTitle("Pozor!")
+            sporocilo.setText("Niste dodali podatkov")
+            sporocilo.exec()
+    
     def razdeli_med_deklarante(self):
         """Metoda nam razdeli podatke globalno."""
         # Poiscemo samo AWB stevilke
@@ -390,7 +428,7 @@ class mojaAplikacija(QMainWindow):
             v[2].clear()
         
         mno_odstopi0 = {[st for st in nab if st.isdigit()][0] for nab in mno_odstopi}
-        mno_fiz0 = {[st for st in nab if st.isdigit()][0] for nab in mno_fiz}
+        mno_fiz0 = {[st for st in nab if st.isdigit()][0] for nab in mno_fiz if 'FORMAL' not in nab}
         mno_fiz_formal = {[niz for niz in nab if niz.isdigit()][0] for nab in mno_fiz if 'FORMAL' in nab}
         mno_pod0 = {[st for st in nab if st.isdigit()][0] for nab in mno_pod}
         # ODSTOPI
@@ -404,18 +442,22 @@ class mojaAplikacija(QMainWindow):
                     while mno_odstopi0 and len(slovar_deklarantov[k][2]) != int(slovar_deklarantov[k][1]):
                         slovar_deklarantov[k][2].append(mno_odstopi0.pop())
         
-        while mno_fiz_formal:
-            if 'formal' in [deklarant[0] for deklarant in slovar_deklarantov.values()]:
-                for k,v in slovar_deklarantov.items():
-                    if 'formal' in v:
-                        while mno_fiz_formal and len(slovar_deklarantov[k][2]) <= int(slovar_deklarantov[k][1]):
-                            slovar_deklarantov[k][2].append(mno_fiz_formal.pop())
-                # potrebno je dodati break stavek da se ne zaciklamo
-                break
-        
         kljuc = itertools.cycle(slovar_deklarantov.keys())
         # po logiki najmanjse tabele v tabeli vrednosti kljuca
         najmanjsa_st = len(slovar_deklarantov[next(kljuc)][2])
+        mno_kljucev = set()
+        pogoj_formal = False
+        while mno_fiz_formal:
+            naslednji_kljuc = next(kljuc)
+            if len(slovar_deklarantov[naslednji_kljuc][2]) < int(slovar_deklarantov[naslednji_kljuc][1]) and slovar_deklarantov[naslednji_kljuc][0] == 'formal':
+                slovar_deklarantov[naslednji_kljuc][2].append(mno_fiz_formal.pop())
+                if slovar_deklarantov[naslednji_kljuc][0] == 'formal':
+                    pogoj_formal = True
+            # naslednji pogoj se izvede v kolikor smo obsli vse kljuce
+            # in nihce od njih ne dela FORMAL posiljk
+            if naslednji_kljuc in mno_kljucev and pogoj_formal != True:
+                break
+            mno_kljucev.add(naslednji_kljuc)
         while mno_fiz_formal:
             naslednji_kljuc = next(kljuc)
             if len(slovar_deklarantov[naslednji_kljuc][2]) < int(slovar_deklarantov[naslednji_kljuc][1]) and slovar_deklarantov[naslednji_kljuc][0] != 'formal' and len(slovar_deklarantov[naslednji_kljuc][2]) == najmanjsa_st:
@@ -476,6 +518,12 @@ class mojaAplikacija(QMainWindow):
             worksheet.autofit()
             # Zapremo zvezek
             workbook.close()
+    
+    def shrani_kot_TXT(self):
+        datoteka = QFileDialog.getSaveFileName(self, 'Shrani kot', os.getcwd(), 'Vrsta datoteke (*.txt)')
+        if datoteka[0] != '':
+            with open(datoteka[0], 'w') as dat:
+                pprint.pprint({k: v[2] for k, v in slovar_deklarantov.items()} | {k: v[2] for k, v in slovar_deklarantov_odstopi.items()}, stream=dat)
         
 distribucija = QApplication([])
 
