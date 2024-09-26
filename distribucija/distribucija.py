@@ -428,9 +428,15 @@ class mojaAplikacija(QMainWindow):
             v[2].clear()
         
         mno_odstopi0 = {[st for st in nab if st.isdigit()][0] for nab in mno_odstopi}
-        mno_fiz0 = {[st for st in nab if st.isdigit()][0] for nab in mno_fiz if 'FORMAL' not in nab}
-        mno_fiz_formal = {[niz for niz in nab if niz.isdigit()][0] for nab in mno_fiz if 'FORMAL' in nab}
-        mno_pod0 = {[st for st in nab if st.isdigit()][0] for nab in mno_pod}
+        # razdeliti moramo na dve glavni skupini: FIZICNE, OSEBE
+        # nato pa te na H7, H7IOSS, FORMAL
+        mno_fiz_H7 = {[st for st in nab if st.isdigit()][0] for nab in mno_fiz if 'H7' in nab}
+        mno_fiz_H7IOSS = {[st for st in nab if st.isdigit()][0] for nab in mno_fiz if 'H7IOSS' in nab}
+        mno_fiz_FORMAL = {[niz for niz in nab if niz.isdigit()][0] for nab in mno_fiz if 'FORMAL' in nab}
+        #################################################################################################
+        mno_pod_H7 = {[st for st in nab if st.isdigit()][0] for nab in mno_pod if 'H7' in nab}
+        mno_pod_H7IOSS = {[st for st in nab if st.isdigit()][0] for nab in mno_pod if 'H7IOSS' in nab}
+        mno_pod_FORMAL = {[st for st in nab if st.isdigit()][0] for nab in mno_pod if 'FORMAL' in nab}
         # ODSTOPI
         sez_odstopi = list(mno_odstopi0)
         slovar_deklarantov_odstopi['Odstopi'] = ['any', 100, []]
@@ -447,32 +453,61 @@ class mojaAplikacija(QMainWindow):
         najmanjsa_st = len(slovar_deklarantov[next(kljuc)][2])
         mno_kljucev = set()
         pogoj_formal = False
-        while mno_fiz_formal:
+        
+        # FORMAL
+        ############################################################
+        while mno_fiz_FORMAL:
             naslednji_kljuc = next(kljuc)
             if len(slovar_deklarantov[naslednji_kljuc][2]) < int(slovar_deklarantov[naslednji_kljuc][1]) and slovar_deklarantov[naslednji_kljuc][0] == 'formal':
-                slovar_deklarantov[naslednji_kljuc][2].append(mno_fiz_formal.pop())
+                slovar_deklarantov[naslednji_kljuc][2].append(mno_fiz_FORMAL.pop())
                 if slovar_deklarantov[naslednji_kljuc][0] == 'formal':
                     pogoj_formal = True
             # naslednji pogoj se izvede v kolikor smo obsli vse kljuce
             # in nihce od njih ne dela FORMAL posiljk
-            if naslednji_kljuc in mno_kljucev and pogoj_formal != True:
+            if naslednji_kljuc in mno_kljucev and pogoj_formal != True or len(slovar_deklarantov[naslednji_kljuc][2]) == int(slovar_deklarantov[naslednji_kljuc][1]):
                 break
             mno_kljucev.add(naslednji_kljuc)
-        while mno_fiz_formal:
+        while mno_fiz_FORMAL:
             naslednji_kljuc = next(kljuc)
             if len(slovar_deklarantov[naslednji_kljuc][2]) < int(slovar_deklarantov[naslednji_kljuc][1]) and slovar_deklarantov[naslednji_kljuc][0] != 'formal' and len(slovar_deklarantov[naslednji_kljuc][2]) == najmanjsa_st:
-                slovar_deklarantov[naslednji_kljuc][2].append(mno_fiz_formal.pop())
+                slovar_deklarantov[naslednji_kljuc][2].append(mno_fiz_FORMAL.pop())
                 najmanjsa_st = min([len(tab[2]) for tab in slovar_deklarantov.values() if 'any' in tab])
-        while mno_fiz0:
+        # H7
+        ############################################################
+        while mno_fiz_H7:
             naslednji_kljuc = next(kljuc)
             if len(slovar_deklarantov[naslednji_kljuc][2]) < int(slovar_deklarantov[naslednji_kljuc][1]) and slovar_deklarantov[naslednji_kljuc][0] != 'formal' and len(slovar_deklarantov[naslednji_kljuc][2]) == najmanjsa_st:
-                slovar_deklarantov[naslednji_kljuc][2].append(mno_fiz0.pop())
+                slovar_deklarantov[naslednji_kljuc][2].append(mno_fiz_H7.pop())
                 najmanjsa_st = min([len(tab[2]) for tab in slovar_deklarantov.values() if 'any' in tab])
-        while mno_pod0:
+        # H7IOSS
+        ############################################################
+        while mno_fiz_H7IOSS:
             naslednji_kljuc = next(kljuc)
             if len(slovar_deklarantov[naslednji_kljuc][2]) < int(slovar_deklarantov[naslednji_kljuc][1]) and slovar_deklarantov[naslednji_kljuc][0] != 'formal' and len(slovar_deklarantov[naslednji_kljuc][2]) == najmanjsa_st:
-                slovar_deklarantov[naslednji_kljuc][2].append(mno_pod0.pop())
+                slovar_deklarantov[naslednji_kljuc][2].append(mno_fiz_H7IOSS.pop())
                 najmanjsa_st = min([len(tab[2]) for tab in slovar_deklarantov.values() if 'any' in tab])
+        # H7
+        ############################################################
+        while mno_pod_H7:
+            naslednji_kljuc = next(kljuc)
+            if len(slovar_deklarantov[naslednji_kljuc][2]) < int(slovar_deklarantov[naslednji_kljuc][1]) and slovar_deklarantov[naslednji_kljuc][0] != 'formal' and len(slovar_deklarantov[naslednji_kljuc][2]) == najmanjsa_st:
+                slovar_deklarantov[naslednji_kljuc][2].append(mno_pod_H7.pop())
+                najmanjsa_st = min([len(tab[2]) for tab in slovar_deklarantov.values() if 'any' in tab])
+        # FORMAL
+        ############################################################
+        while mno_pod_FORMAL:
+            naslednji_kljuc = next(kljuc)
+            if len(slovar_deklarantov[naslednji_kljuc][2]) < int(slovar_deklarantov[naslednji_kljuc][1]) and slovar_deklarantov[naslednji_kljuc][0] != 'formal' and len(slovar_deklarantov[naslednji_kljuc][2]) == najmanjsa_st:
+                slovar_deklarantov[naslednji_kljuc][2].append(mno_pod_FORMAL.pop())
+                najmanjsa_st = min([len(tab[2]) for tab in slovar_deklarantov.values() if 'any' in tab])
+        # H7IOSS
+        ############################################################
+        while mno_pod_H7IOSS:
+            naslednji_kljuc = next(kljuc)
+            if len(slovar_deklarantov[naslednji_kljuc][2]) < int(slovar_deklarantov[naslednji_kljuc][1]) and slovar_deklarantov[naslednji_kljuc][0] != 'formal' and len(slovar_deklarantov[naslednji_kljuc][2]) == najmanjsa_st:
+                slovar_deklarantov[naslednji_kljuc][2].append(mno_pod_H7IOSS.pop())
+                najmanjsa_st = min([len(tab[2]) for tab in slovar_deklarantov.values() if 'any' in tab])
+        
         # preveri veckrat ce je pogoj pravi!!! za najmanjsa_st
         self.dist_okno = prikaziDistribucijo(slovar_deklarantov)
         self.dist_okno.show()
