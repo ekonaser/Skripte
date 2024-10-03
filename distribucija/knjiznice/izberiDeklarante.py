@@ -1,6 +1,7 @@
 from globalne_spremenljivke import slovar_deklarantov, slovar_deklarantov_odstopi
 
 from PyQt6.QtWidgets import QWidget, QPushButton, QVBoxLayout, QCheckBox, QMessageBox
+from PyQt6.QtCore import Qt
 
 class izberiDeklarante(QWidget):
     
@@ -10,6 +11,11 @@ class izberiDeklarante(QWidget):
         self.setGeometry(300, 300, 300, 300)
         
         postavitev = QVBoxLayout()
+        
+        self.izberi_vse = QCheckBox("Vsi")
+        self.izberi_vse.stateChanged.connect(self._izberi_vse)
+        
+        postavitev.addWidget(self.izberi_vse)  
         
         self.slovar = dict(tab)
         self.potr_polja = []
@@ -23,7 +29,7 @@ class izberiDeklarante(QWidget):
         
         self.zapri = QPushButton("Zapri")
         self.zapri.clicked.connect(self._zapri)
-        
+              
         postavitev.addWidget(self.uvozi)
         postavitev.addWidget(self.zapri)
         
@@ -40,6 +46,16 @@ class izberiDeklarante(QWidget):
         sporocilo.setWindowTitle("Izbrani deklarantje")
         sporocilo.setText(', '.join(slovar_deklarantov))
         sporocilo.exec()
+    
+    def _izberi_vse(self):
+        """Metoda nam vsa polja označi za izbrana"""
+        vse = self.izberi_vse.isChecked()
+        if vse:
+            for polje in self.potr_polja:
+                polje.setChecked(True)
+        else:
+            for polje in self.potr_polja:
+                polje.setChecked(False)
     
     def _zapri(self):
         self.close()

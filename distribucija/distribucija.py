@@ -41,11 +41,13 @@ class mojaAplikacija(QMainWindow, shraniXLSX, shraniTXT, delitevMnozic):
         izhod = QAction("Izhod", self)
         uvozi_csv = QAction("Uvozi CSV/txt", self)
         dodaj_deklarante = QAction("Dodaj deklarante", self)
+        odstrani_deklarante = QAction("Odstrani deklarante", self)
         shrani_podatke_kot = QAction("Shrani CSV/txt kot", self)
         shrani_kot_txt = QAction("Shrani kot TXT", self)
         shrani_kot_excel = QAction("Shrani kot xslx", self)
         datotecni_meni1.addAction(deklaranti)
         datotecni_meni1.addAction(dodaj_deklarante)
+        datotecni_meni1.addAction(odstrani_deklarante)
         datotecni_meni1.addAction(uvozi_csv)
         datotecni_meni1.addAction(shrani_podatke_kot)
         datotecni_meni1.addSeparator()
@@ -74,10 +76,12 @@ class mojaAplikacija(QMainWindow, shraniXLSX, shraniTXT, delitevMnozic):
         izhod.triggered.connect(self._izhod)
         deklaranti.triggered.connect(self.izberi_deklarante)
         dodaj_deklarante.triggered.connect(self.dodaj_deklaranta)
+        odstrani_deklarante.triggered.connect(self._odstrani_deklarante)
         uvozi_csv.triggered.connect(self.izberi_podatke)
         shrani_podatke_kot.triggered.connect(self.shrani_CSV_podatke_kot)
         shrani_kot_txt.triggered.connect(self.shrani_TXT)
         shrani_kot_excel.triggered.connect(self.shrani_XLSX)
+        o_programu.triggered.connect(self.oprogramu)
         
         # Create a central widget and set the layout
         central_widget = QWidget()
@@ -110,6 +114,10 @@ class mojaAplikacija(QMainWindow, shraniXLSX, shraniTXT, delitevMnozic):
     def izberi_deklarante(self, datoteka): 
         self.uvozno_okno = izberiDeklarante(preberi_deklarante())
         self.uvozno_okno.show()
+        
+    def _odstrani_deklarante(self, datoteka): 
+        self.izbirno_okno = odstraniDeklarante(preberi_deklarante())
+        self.izbirno_okno.show()
     
     def shrani_CSV_podatke_kot(self):
         datoteka = QFileDialog.getSaveFileName(self, 'Shrani kot', os.getcwd(), 'Vrsta datoteke (*.txt *.csv)')
@@ -160,6 +168,10 @@ class mojaAplikacija(QMainWindow, shraniXLSX, shraniTXT, delitevMnozic):
     def dodaj_deklaranta(self):
         self.dod_dek = dodajDeklaranta()
         self.dod_dek.show()
+        
+    def oprogramu(self):
+        self.prikaz_o_programu = oProgramu()
+        self.prikaz_o_programu.show()
     
 distribucija = QApplication([])
 glavno_okno = mojaAplikacija()
