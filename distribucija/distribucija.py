@@ -8,7 +8,7 @@ from PyQt6.QtWidgets import (
     QApplication, QWidget, QPushButton, QVBoxLayout, QMainWindow,
     QLabel, QFileDialog, QMessageBox, QTableWidget, QTableWidgetItem, QScrollArea, QHBoxLayout
 )
-from PyQt6.QtGui import QAction, QPixmap
+from PyQt6.QtGui import QAction, QPixmap, QGuiApplication
 
 from moduli import *
 
@@ -22,6 +22,8 @@ class mojaAplikacija(QMainWindow, shraniXLSX, shraniTXT, delitevMnozic):
         super().__init__()
         self.setWindowTitle('Distribucija')
         self.setGeometry(500, 500, 500, 500)
+        #self.resize(500, 500)
+        self.center_zaslona()
         
         # postavitev
         postavitev = QVBoxLayout()
@@ -172,6 +174,12 @@ class mojaAplikacija(QMainWindow, shraniXLSX, shraniTXT, delitevMnozic):
     def oprogramu(self):
         self.prikaz_o_programu = oProgramu()
         self.prikaz_o_programu.show()
+    
+    def center_zaslona(self):
+        screen = QGuiApplication.primaryScreen().availableGeometry().center()
+        frame = self.frameGeometry()
+        frame.moveCenter(screen)
+        self.move(frame.topLeft())
     
 distribucija = QApplication([])
 glavno_okno = mojaAplikacija()

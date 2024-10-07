@@ -1,5 +1,6 @@
 # razred delitev
 import itertools
+import random
 from prikaziDistribucijo import *
 
 class delitevMnozic:
@@ -8,7 +9,7 @@ class delitevMnozic:
         """Metoda nam razdeli podatke globalno.
         Args:
             slovar1 (dict): slovar deklarantov
-            slovar2 (dict): slovar izkljucno za odstope
+            slovar2 (dict): slovar izkljucno za odstope in deklarante kateri so izloceni zaradi pogojev
             mno1     (set): mnozica fizicnih oseb
             mno2     (set): mnozica podjetij
             mno3     (set): mnozica odstopov
@@ -29,12 +30,9 @@ class delitevMnozic:
         mno_pod_FORMAL = {[st for st in nab if st.isdigit()][0] for nab in mno2 if 'FORMAL' in nab}
         # ODSTOPI SLOVAR
         ############################################################
-        sez_odstopi = list(mno_odstopi)
-        slovar2['Odstopi'] = ['karkoli', 100, []]
-        for awb in sez_odstopi:
-            slovar2['Odstopi'][2].append(awb)
-        
-        kljuc = itertools.cycle(slovar1.keys())
+        sez_kljucev = list(slovar1.keys())
+        random.shuffle(sez_kljucev)
+        kljuc = itertools.cycle(sez_kljucev)
         # po logiki najmanjse tabele v tabeli vrednosti kljuca
         najmanjsa_st = len(slovar1[next(kljuc)][2])
         mno_kljucev = set()
@@ -65,12 +63,16 @@ class delitevMnozic:
             if naslednji_kljuc in mno_kljucev and pogoj_formal != True or len(slovar1[naslednji_kljuc][2]) == int(slovar1[naslednji_kljuc][1]):
                 break
             mno_kljucev.add(naslednji_kljuc)
-            
         while mno_fiz_FORMAL:
             naslednji_kljuc = next(kljuc)
             if len(slovar1[naslednji_kljuc][2]) < int(slovar1[naslednji_kljuc][1]) and slovar1[naslednji_kljuc][0] != 'formal' and len(slovar1[naslednji_kljuc][2]) == najmanjsa_st:
                 slovar1[naslednji_kljuc][2].append(mno_fiz_FORMAL.pop())
                 najmanjsa_st = min([len(tab[2]) for tab in slovar1.values() if 'karkoli' in tab or 'odstop' in tab])
+            if len(slovar1[naslednji_kljuc][2]) == int(slovar1[naslednji_kljuc][1]):
+                slovar2 |= {naslednji_kljuc: slovar1[naslednji_kljuc]}
+                slovar1.pop(naslednji_kljuc)
+                sez_kljucev = list(slovar1.keys())
+                kljuc = itertools.cycle(sez_kljucev)
         # H7
         ############################################################
         while mno_fiz_H7:
@@ -78,6 +80,11 @@ class delitevMnozic:
             if len(slovar1[naslednji_kljuc][2]) < int(slovar1[naslednji_kljuc][1]) and slovar1[naslednji_kljuc][0] != 'formal' and len(slovar1[naslednji_kljuc][2]) == najmanjsa_st:
                 slovar1[naslednji_kljuc][2].append(mno_fiz_H7.pop())
                 najmanjsa_st = min([len(tab[2]) for tab in slovar1.values() if 'karkoli' in tab or 'odstop' in tab])
+            if len(slovar1[naslednji_kljuc][2]) == int(slovar1[naslednji_kljuc][1]):
+                slovar2 |= {naslednji_kljuc: slovar1[naslednji_kljuc]}
+                slovar1.pop(naslednji_kljuc)
+                sez_kljucev = list(slovar1.keys())
+                kljuc = itertools.cycle(sez_kljucev)
         # H7IOSS
         ############################################################
         while mno_fiz_H7IOSS:
@@ -85,6 +92,11 @@ class delitevMnozic:
             if len(slovar1[naslednji_kljuc][2]) < int(slovar1[naslednji_kljuc][1]) and slovar1[naslednji_kljuc][0] != 'formal' and len(slovar1[naslednji_kljuc][2]) == najmanjsa_st:
                 slovar1[naslednji_kljuc][2].append(mno_fiz_H7IOSS.pop())
                 najmanjsa_st = min([len(tab[2]) for tab in slovar1.values() if 'karkoli' in tab or 'odstop' in tab])
+            if len(slovar1[naslednji_kljuc][2]) == int(slovar1[naslednji_kljuc][1]):
+                slovar2 |= {naslednji_kljuc: slovar1[naslednji_kljuc]}
+                slovar1.pop(naslednji_kljuc)
+                sez_kljucev = list(slovar1.keys())
+                kljuc = itertools.cycle(sez_kljucev)
         # H7
         ############################################################
         while mno_pod_H7:
@@ -92,13 +104,23 @@ class delitevMnozic:
             if len(slovar1[naslednji_kljuc][2]) < int(slovar1[naslednji_kljuc][1]) and slovar1[naslednji_kljuc][0] != 'formal' and len(slovar1[naslednji_kljuc][2]) == najmanjsa_st:
                 slovar1[naslednji_kljuc][2].append(mno_pod_H7.pop())
                 najmanjsa_st = min([len(tab[2]) for tab in slovar1.values() if 'karkoli' in tab or 'odstop' in tab])
+            if len(slovar1[naslednji_kljuc][2]) == int(slovar1[naslednji_kljuc][1]):
+                slovar2 |= {naslednji_kljuc: slovar1[naslednji_kljuc]}
+                slovar1.pop(naslednji_kljuc)
+                sez_kljucev = list(slovar1.keys())
+                kljuc = itertools.cycle(sez_kljucev)
         # FORMAL
         ############################################################
         while mno_pod_FORMAL:
             naslednji_kljuc = next(kljuc)
             if len(slovar1[naslednji_kljuc][2]) < int(slovar1[naslednji_kljuc][1]) and slovar1[naslednji_kljuc][0] != 'formal' and len(slovar1[naslednji_kljuc][2]) == najmanjsa_st:
                 slovar1[naslednji_kljuc][2].append(mno_pod_FORMAL.pop())
-                najmanjsa_st = min([len(tab[2]) for tab in slovar1.values() if 'karkoli' in tab or 'odstop' in tab])
+                najmanjsa_st = min([len(tab[2]) for tab in slovar1.values() if tab[0] in {'karkoli', 'odstop'}])
+            if len(slovar1[naslednji_kljuc][2]) == int(slovar1[naslednji_kljuc][1]):
+                slovar2 |= {naslednji_kljuc: slovar1[naslednji_kljuc]}
+                slovar1.pop(naslednji_kljuc)
+                sez_kljucev = list(slovar1.keys())
+                kljuc = itertools.cycle(sez_kljucev)
         # H7IOSS
         ############################################################
         while mno_pod_H7IOSS:
@@ -106,7 +128,19 @@ class delitevMnozic:
             if len(slovar1[naslednji_kljuc][2]) < int(slovar1[naslednji_kljuc][1]) and slovar1[naslednji_kljuc][0] != 'formal' and len(slovar1[naslednji_kljuc][2]) == najmanjsa_st:
                 slovar1[naslednji_kljuc][2].append(mno_pod_H7IOSS.pop())
                 najmanjsa_st = min([len(tab[2]) for tab in slovar1.values() if 'karkoli' in tab or 'odstop' in tab])
-        
+            if len(slovar1[naslednji_kljuc][2]) == int(slovar1[naslednji_kljuc][1]):
+                slovar2 |= {naslednji_kljuc: slovar1[naslednji_kljuc]}
+                slovar1.pop(naslednji_kljuc)
+                sez_kljucev = list(slovar1.keys())
+                kljuc = itertools.cycle(sez_kljucev)
         # preveri veckrat ce je pogoj pravi!!! za najmanjsa_st
+        # 07.10.2024 - dodan pogoj da jih mece ven iz slovarja
+        
+        # v naslednjih 4 vrsticah kode dodamo se odstope v slovar2
+        sez_odstopi = list(mno_odstopi)
+        slovar2['Odstopi'] = ['karkoli', 100, []]
+        for awb in sez_odstopi:
+            slovar2['Odstopi'][2].append(awb)
+        
         self.dist_okno = prikaziDistribucijo(slovar1)
         self.dist_okno.show()
