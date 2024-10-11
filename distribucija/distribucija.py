@@ -1,6 +1,7 @@
 import sys
 import os
 import csv
+import time
 
 sys.path.append(os.getcwd() + '\\' + 'knjiznice')
 
@@ -10,11 +11,21 @@ from PyQt6.QtWidgets import (
 )
 from PyQt6.QtGui import QAction, QPixmap, QGuiApplication
 
+from matplotlib.backends.backend_qtagg import FigureCanvasQTAgg as FigureCanvas, NavigationToolbar2QT
+import matplotlib.pyplot as plt
+import numpy as np
+
 from moduli import *
 
 with open(os.getcwd() + '\\viri\\odstopi.csv','r',encoding='utf-8-sig') as dat:
     for vr in dat:
         mno_odstopov.add(vr.replace('\n',''))
+
+class MplCanvas(FigureCanvas):
+
+    def __init__(self, parent=None, width=5, height=4, dpi=200):
+        fig, self.ax = plt.subplots(figsize=(width, height), dpi=dpi)
+        super().__init__(fig)
 
 class mojaAplikacija(QMainWindow, shraniXLSX, shraniTXT, delitevMnozic):
     
@@ -28,12 +39,9 @@ class mojaAplikacija(QMainWindow, shraniXLSX, shraniTXT, delitevMnozic):
         # postavitev
         postavitev = QVBoxLayout()
         
-        # slika
-        self.image_label = QLabel(self)
-        pixmap = QPixmap('slike\\fedex.png')
-        self.image_label.setPixmap(pixmap)
-        self.image_label.setScaledContents(True)  # Enable scaled contents
-        self.image_label.resize(1000, 1000)
+        # graf
+        self.okvir_grafa = MplCanvas(self, width=5, height=4, dpi=85)
+        orodja_grafa = NavigationToolbar2QT(self.okvir_grafa, self)
         
         # menu
         datoteka = self.menuBar()
@@ -63,7 +71,7 @@ class mojaAplikacija(QMainWindow, shraniXLSX, shraniTXT, delitevMnozic):
         datotecni_meni2.addAction(o_programu)
         
         # dodamo sliko
-        postavitev.addWidget(self.image_label)
+        # postavitev.addWidget(self.image_label)
         # gumbi
         self.izracunaj = QPushButton("Naredi distribucijo")
         self.izracunaj.clicked.connect(self.distribucija)
@@ -84,6 +92,9 @@ class mojaAplikacija(QMainWindow, shraniXLSX, shraniTXT, delitevMnozic):
         shrani_kot_txt.triggered.connect(self.shrani_TXT)
         shrani_kot_excel.triggered.connect(self.shrani_XLSX)
         o_programu.triggered.connect(self.oprogramu)
+        
+        postavitev.addWidget(orodja_grafa)
+        postavitev.addWidget(self.okvir_grafa)
         
         # Create a central widget and set the layout
         central_widget = QWidget()
@@ -159,8 +170,63 @@ class mojaAplikacija(QMainWindow, shraniXLSX, shraniTXT, delitevMnozic):
             self.uvozno_okno.show()
     
     def preveri_mnozice(self):
+        """Metoda zazene podedovano metodo ter nam izrise graf"""
         if mno_odstopi or mno_fiz or mno_pod:
             self.razdeli_med_deklarante(slovar_deklarantov, slovar_deklarantov_odstopi, mno_fiz, mno_pod, mno_odstopi)
+            # tukaj posodobimo nas graf
+            self.okvir_grafa.ax.cla()
+            # Mnozice
+            mno_H7_fiz = set([nab[0] for nab in mno_fiz if nab[2] == 'H7'])
+            mno_FORMAL_fiz = set([nab[0] for nab in mno_fiz if nab[2] == 'FORMAL'])
+            mno_H7IOSS_fiz = set([nab[0] for nab in mno_fiz if nab[2] == 'H7IOSS'])
+            
+            mno_H7_pod = set([nab[0] for nab in mno_pod if nab[2] == 'H7'])
+            mno_FORMAL_pod = set([nab[0] for nab in mno_pod if nab[2] == 'FORMAL'])
+            mno_H7IOSS_pod = set([nab[0] for nab in mno_pod if nab[2] == 'H7IOSS'])
+            
+            mno_ODSTOPI = set([nab[0] for nab in mno_odstopi])
+            
+            slovar = {k:v for k,v in slovar_deklarantov.items()} | {k:v for k,v in slovar_deklarantov_odstopi.items()}
+            slo_mno = {k:set(v[2]) for k,v in slovar.items()} # glavni slovar
+            imena = [k for k,v in slo_mno.items()]
+            skupaj = [len(v) for k,v in slo_mno.items()]
+            
+            h7_fiz = [len(v & mno_H7_fiz) for k,v in slo_mno.items()]
+            formal_fiz = [len(v & mno_FORMAL_fiz) for k,v in slo_mno.items()]
+            h7ioss_fiz = [len(v & mno_H7IOSS_fiz) for k,v in slo_mno.items()]
+            
+            h7_pod = [len(v & mno_H7_pod) for k,v in slo_mno.items()]
+            formal_pod = [len(v & mno_FORMAL_pod) for k,v in slo_mno.items()]
+            h7ioss_pod = [len(v & mno_H7IOSS_pod) for k,v in slo_mno.items()]
+            
+            odstopi = [len(v & mno_ODSTOPI) for k,v in slo_mno.items()]
+            
+            tab_vseh = [h7_fiz, formal_fiz, h7ioss_fiz, h7_pod, formal_pod, h7ioss_pod, odstopi]
+            tab_imen = ['H7 F', 'Formal F', 'H7IOSS F', 'H7 P', 'Formal P', 'H7IOSS P', 'Odstopi']
+            
+            n_groups = len(imena)
+            bar_width = 0.30
+            index = np.arange(len(imena))
+            
+            fig, ax = plt.subplots()
+            
+            self.okvir_grafa.ax.bar(index, h7_fiz, bar_width, label='H7 F')
+        
+            # Stacking the rest of the bars on top of the first set
+            bottom = np.array(h7_fiz)
+            for i, tab in enumerate(tab_vseh[1:], start=1):
+                self.okvir_grafa.ax.bar(index, tab, bar_width, bottom=bottom, label=tab_imen[i])
+                bottom += np.array(tab)
+            
+            self.okvir_grafa.ax.set_ylabel('Število pošiljk')
+            self.okvir_grafa.ax.set_title('Distribucija')
+            self.okvir_grafa.ax.set_xticks(index)
+            self.okvir_grafa.ax.set_xticklabels(imena)
+            self.okvir_grafa.ax.set_ylim(0, max(bottom) * 1.2)
+            self.okvir_grafa.ax.legend()
+
+            self.okvir_grafa.draw()
+            
         else:
             sporocilo = QMessageBox()
             sporocilo.setWindowTitle("Pozor!")

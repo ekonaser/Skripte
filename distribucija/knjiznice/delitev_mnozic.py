@@ -142,5 +142,5 @@ class delitevMnozic:
         for awb in sez_odstopi:
             slovar2['Odstopi'][2].append(awb)
         
-        self.dist_okno = prikaziDistribucijo(slovar1)
-        self.dist_okno.show()
+        #self.dist_okno = prikaziDistribucijo(slovar1)
+        #self.dist_okno.show()
