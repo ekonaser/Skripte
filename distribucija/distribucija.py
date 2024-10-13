@@ -173,7 +173,7 @@ class mojaAplikacija(QMainWindow, shraniXLSX, shraniTXT, delitevMnozic):
         """Metoda zazene podedovano metodo ter nam izrise graf"""
         if mno_odstopi or mno_fiz or mno_pod:
             self.razdeli_med_deklarante(slovar_deklarantov, slovar_deklarantov_odstopi, mno_fiz, mno_pod, mno_odstopi)
-            # tukaj posodobimo nas graf
+            # tukaj resetiramo nas graf
             self.okvir_grafa.ax.cla()
             # Mnozice
             mno_H7_fiz = set([nab[0] for nab in mno_fiz if nab[2] == 'H7'])
@@ -185,7 +185,6 @@ class mojaAplikacija(QMainWindow, shraniXLSX, shraniTXT, delitevMnozic):
             mno_H7IOSS_pod = set([nab[0] for nab in mno_pod if nab[2] == 'H7IOSS'])
             
             mno_ODSTOPI = set([nab[0] for nab in mno_odstopi])
-            
             slovar = {k:v for k,v in slovar_deklarantov.items()} | {k:v for k,v in slovar_deklarantov_odstopi.items()}
             slo_mno = {k:set(v[2]) for k,v in slovar.items()} # glavni slovar
             imena = [k for k,v in slo_mno.items()]

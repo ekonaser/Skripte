@@ -16,8 +16,16 @@ class delitevMnozic:
         """
         # Poiscemo samo AWB stevilke
         # za pozneje lahko das pogoj: len(st) == 11 ali 12
+        # zato da se stvari ne ponavljajo in tisti ki so izloceni
+        # spet pristanejo v prvem slovarju slovar1, ker slovar2 je na
+        # zacetku prazen!!!!!
+        if slovar2:
+            slovar2.pop('Odstopi')
+            slovar1 |= slovar2
+            slovar2.clear()
         for k,v in slovar1.items():
             v[2].clear()
+        
         # razdeliti moramo na dve glavni skupini: FIZICNE, OSEBE
         # nato pa te na H7, H7IOSS, FORMAL
         mno_fiz_H7 = {[st for st in nab if st.isdigit()][0] for nab in mno1 if 'H7' in nab}
@@ -38,6 +46,13 @@ class delitevMnozic:
         mno_kljucev = set()
         pogoj_formal = False
         pogoj_odstop = False
+        
+        # [ODSTOPI SLOVAR]
+        ############################################################
+        sez_odstopi = list(mno_odstopi)
+        slovar2['Odstopi'] = ['karkoli', 100, []]
+        for awb in sez_odstopi:
+            slovar2['Odstopi'][2].append(awb)
         # [ODSTOP]
         ############################################################
         while mno_odstopi:
@@ -136,11 +151,9 @@ class delitevMnozic:
         # preveri veckrat ce je pogoj pravi!!! za najmanjsa_st
         # 07.10.2024 - dodan pogoj da jih mece ven iz slovarja
         
-        # v naslednjih 4 vrsticah kode dodamo se odstope v slovar2
-        sez_odstopi = list(mno_odstopi)
-        slovar2['Odstopi'] = ['karkoli', 100, []]
-        for awb in sez_odstopi:
-            slovar2['Odstopi'][2].append(awb)
+        # spremenimo vrstni red slovarja [slovar2]
+        v_odstopi = slovar2.pop('Odstopi')
+        slovar2['Odstopi'] = v_odstopi
         
         #self.dist_okno = prikaziDistribucijo(slovar1)
         #self.dist_okno.show()
