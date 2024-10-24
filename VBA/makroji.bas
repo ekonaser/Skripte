@@ -1,6 +1,6 @@
 ' Datoteka z makroji
 
-Function Cl05_Funkcija(st1 As Variant, st2 As Variant) As Variant
+Function Cl5_Funkcija(st1 As Variant, st2 As Variant) As Variant
     ' Funkcija nam dve števili poracuna ter poracunano
     ' število vrne
     Dim st As Double
@@ -15,16 +15,29 @@ Function Cl05_Funkcija(st1 As Variant, st2 As Variant) As Variant
     If st < 50 Then
         poracunana = st * 0.3
         If poracunana = 0 Then
-            Cl05_Funkcija = ""
+            Cl5_Funkcija = ""
         ElseIf poracunana <= 5 Then
-            Cl05_Funkcija = 5#
+            Cl5_Funkcija = 5#
         Else
-            Cl05_Funkcija = poracunana
+            Cl5_Funkcija = poracunana
         End If
     ElseIf st <= 600 Then
-        Cl05_Funkcija = 15#
+        Cl5_Funkcija = 15#
     Else
-        Cl05_Funkcija = st * 0.025
+        Cl5_Funkcija = st * 0.025
+    End If
+End Function
+
+Function Cl0_Funkcija(st1 As Variant) As Variant
+    ' Funkcija nam poracuna postavke
+    If CStr(st1) = "" Then
+        st1 = 0
+    End If
+    st = CDbl(st1)
+    If st > 5 Then
+        Cl0_Funkcija = Format((st - 5) * 8, "#0.00")
+    Else
+        Cl0_Funkcija = ""
     End If
 End Function
 
