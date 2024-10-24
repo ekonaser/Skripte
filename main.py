@@ -31,7 +31,7 @@ class strankaTrinet:
         self.dajatev = tab[7]
         self.davek = tab[8]
         self.vrsta3 = tab[9]
-        if tab[10] == 'None' or tab[10][-1:] == 'O' or 'SIA' in tab[10]:
+        if tab[10] == 'None' or 'SIA' in tab[10]:
             self.eori3 = 'SIA5555555'
         else:
             self.eori3 = tab[10]
