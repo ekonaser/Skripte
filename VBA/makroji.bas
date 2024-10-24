@@ -30,6 +30,7 @@ End Function
 
 Function vNizu(a As String, b As String) As Boolean
     ' Funkcija preveri ce je niz a v nizu b
+    ' Funkcija vrne 'bool' vrednost
     If InStr(b, a) > 0 Then
         vNizu = True
     Else
