@@ -27,3 +27,12 @@ Function Cl05_Funkcija(st1 As Variant, st2 As Variant) As Variant
         Cl05_Funkcija = st * 0.025
     End If
 End Function
+
+Function vNizu(a As String, b As String) As Boolean
+    ' Funkcija preveri ce je niz a v nizu b
+    If InStr(b, a) > 0 Then
+        vNizu = True
+    Else
+        vNizu = False
+    End If
+End Function
