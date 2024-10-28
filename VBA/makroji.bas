@@ -138,7 +138,6 @@ Private Sub DodajSlovar()
     Dim rowNumber As Integer
     Dim infoArray() As Variant
     Dim ws As Worksheet
-    
 
     Set ws = ThisWorkbook.Sheets("trinet")
     Set slovar = CreateObject("Scripting.Dictionary")
@@ -152,16 +151,23 @@ Private Sub DodajSlovar()
         If cellValue = "" Then
             Exit Do
         End If
-
+        
         If ws.Cells(rowNumber, 2) <> "" Then
             key = ws.Cells(rowNumber, 2).Value
-            infoArray = Array(ws.Cells(rowNumber, 1).Value, ws.Cells(rowNumber, 3).Value, ws.Cells(rowNumber, 4).Value, ws.Cells(rowNumber, 5).Value, _
-                              ws.Cells(rowNumber, 6).Value, ws.Cells(rowNumber, 7).Value, ws.Cells(rowNumber, 8).Value, ws.Cells(rowNumber, 9).Value, _
-                              ws.Cells(rowNumber, 10).Value, ws.Cells(rowNumber, 11).Value, ws.Cells(rowNumber, 12).Value, ws.Cells(rowNumber, 2).Value, _
-                              ws.Cells(rowNumber, 13).Value, ws.Cells(rowNumber, 14).Value, ws.Cells(rowNumber, 15).Value, ws.Cells(rowNumber, 16).Value)
+            
+            If ws.Cells(rowNumber, 3).Value <> "" And IsDate(ws.Cells(rowNumber, 3).Value) Then
+                infoArray = Array(ws.Cells(rowNumber, 1).Value, DateValue(ws.Cells(rowNumber, 3).Value), ws.Cells(rowNumber, 4).Value, ws.Cells(rowNumber, 5).Value, _
+                                  ws.Cells(rowNumber, 6).Value, ws.Cells(rowNumber, 7).Value, ws.Cells(rowNumber, 8).Value, ws.Cells(rowNumber, 9).Value, _
+                                  ws.Cells(rowNumber, 10).Value, ws.Cells(rowNumber, 11).Value, ws.Cells(rowNumber, 12).Value, ws.Cells(rowNumber, 2).Value, _
+                                  ws.Cells(rowNumber, 13).Value, ws.Cells(rowNumber, 14).Value, ws.Cells(rowNumber, 15).Value, ws.Cells(rowNumber, 16).Value)
+            Else
+                infoArray = Array(ws.Cells(rowNumber, 1).Value, ws.Cells(rowNumber, 3).Value, ws.Cells(rowNumber, 4).Value, ws.Cells(rowNumber, 5).Value, _
+                                  ws.Cells(rowNumber, 6).Value, ws.Cells(rowNumber, 7).Value, ws.Cells(rowNumber, 8).Value, ws.Cells(rowNumber, 9).Value, _
+                                  ws.Cells(rowNumber, 10).Value, ws.Cells(rowNumber, 11).Value, ws.Cells(rowNumber, 12).Value, ws.Cells(rowNumber, 2).Value, _
+                                  ws.Cells(rowNumber, 13).Value, ws.Cells(rowNumber, 14).Value, ws.Cells(rowNumber, 15).Value, ws.Cells(rowNumber, 16).Value)
+            End If
             slovar.Add key, infoArray
         End If
-
         rowNumber = rowNumber + 1
     Loop
 End Sub
@@ -213,7 +219,7 @@ Private Sub CustomerReference()
             Exit Do
         End If
 
-        nizDatum = Format(ws.Cells(rowNumber, 4), "DD.MM.YYYY")
+        nizDatum = ws.Cells(rowNumber, 4)
         If nizDatum <> "" Then
             niz = "MRN " & Right(ws.Cells(rowNumber, 3), 6) & " DNE " & nizDatum
         Else
@@ -226,7 +232,7 @@ Private Sub CustomerReference()
 End Sub
 
 Private Sub InputDatum()
-    datum = InputBox("Vnesi datum zadnjega delovnega dne [DD/MM/YYYY]:", "Datum")
+    datum = InputBox("Vnesi datum zadnjega delovnega dne [DD.MM.YYYY]:", "Datum")
 End Sub
 
 Private Sub Fizikalci()
