@@ -232,7 +232,16 @@ Private Sub CustomerReference()
 End Sub
 
 Private Sub InputDatum()
-    datum = InputBox("Vnesi datum zadnjega delovnega dne [DD.MM.YYYY]:", "Datum")
+    Dim niz As String
+    Dim dayPart As Integer
+    Dim monthPart As Integer
+    Dim yearPart As Integer
+    niz = InputBox("Vnesi datum zadnjega delovnega dne [DD.MM.YYYY]:", "Datum")
+    
+    dayPart = CInt(Mid(niz, 1, 2))
+    monthPart = CInt(Mid(niz, 4, 2))
+    yearPart = CInt(Mid(niz, 7, 4))
+    datum = DateSerial(dayPart, monthPart, yearPart)
 End Sub
 
 Private Sub Fizikalci()
