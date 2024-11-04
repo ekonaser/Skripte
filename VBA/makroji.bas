@@ -241,7 +241,7 @@ Private Sub InputDatum()
     dayPart = CInt(Mid(niz, 1, 2))
     monthPart = CInt(Mid(niz, 4, 2))
     yearPart = CInt(Mid(niz, 7, 4))
-    datum = DateSerial(dayPart, monthPart, yearPart)
+    datum = DateSerial(yearPart, monthPart, dayPart)
 End Sub
 
 Private Sub Fizikalci()
