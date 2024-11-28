@@ -50,4 +50,4 @@ def pretvori_v_csv(pot):
     print(mno)
 
 if __name__ == '__main__':
-    pretvori_v_csv(os.getcwd() + '\\' + '.xls')
+    pretvori_v_csv(os.getcwd() + '\\' + 'tlm_obracun.xls')
