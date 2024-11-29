@@ -13,14 +13,20 @@ def pretvori_v_csv(pot):
         'x': 'urn:schemas-microsoft-com:office:excel'
         }
     
+    datoteka_manjkajoci = open('manjkajoci.txt','w',encoding='utf-8')
+    
     # CarM Scan podatke dodamo v množico
     mno = set()
     with open('carm_scan.csv','r',encoding='utf-8') as dat:
         for vr in dat:
-            break
-        for vr in dat:
             mno.add(vr[:-1])
     
+    slo_acc = {}
+    with open('navadna_acc.csv','r',encoding='utf-8-sig') as dat:
+        for vr in dat:
+            st, davcna, naziv = vr.strip().split(';')
+            slo_acc[davcna] = st
+            
     # Extract data
     data = []
     for row in root.findall('.//ss:Row', ns):
@@ -40,14 +46,22 @@ def pretvori_v_csv(pot):
                 row_data.append('')
             
         if row_data[2] in mno:
+            if len(row_data[0]) == 11 and row_data[0].isdigit():
+                row_data[8] = slo_acc.get(row_data[9], row_data[9])
             data.append(row_data)
             mno.discard(row_data[2])
+            
+                
+        elif len(row_data[0]) >= 18 and row_data[0][-18:] in mno:
+            data.append(row_data)
+            mno.discard(row_data[0][-18:])
     
     with open('obracun.csv','w',encoding='utf-8') as dat:
         for tab in data:
             dat.write(';'.join(tab) + '\n')
     
-    print(mno)
+    print('\n'.join(mno), file=datoteka_manjkajoci)
+    datoteka_manjkajoci.close()
 
 if __name__ == '__main__':
     pretvori_v_csv(os.getcwd() + '\\' + 'tlm_obracun.xls')
