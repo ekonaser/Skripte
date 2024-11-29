@@ -17,9 +17,11 @@ def pretvori_v_csv(pot):
     
     # CarM Scan podatke dodamo v množico
     mno = set()
-    with open('carm_scan.csv','r',encoding='utf-8') as dat:
+    with open('carm_scan.csv','r',encoding='utf-8-sig') as dat:
         for vr in dat:
-            mno.add(vr[:-1])
+            awb, mrn = vr.strip().split(';')
+            mno.add(awb)
+            mno.add(mrn)
     
     slo_acc = {}
     with open('navadna_acc.csv','r',encoding='utf-8-sig') as dat:
@@ -44,17 +46,23 @@ def pretvori_v_csv(pot):
             # Handle merge across
             for _ in range(merge_across):
                 row_data.append('')
-            
-        if row_data[2] in mno:
+                
+        if row_data[2] in mno or row_data[0] in mno:
             if len(row_data[0]) == 11 and row_data[0].isdigit():
                 row_data[8] = slo_acc.get(row_data[9], row_data[9])
             data.append(row_data)
             mno.discard(row_data[2])
+            mno.discard(row_data[0])
             
-                
         elif len(row_data[0]) >= 18 and row_data[0][-18:] in mno:
+            awb, mrn = row_data[0].replace(' ', '').split('-')
+            row_data[0] = awb
+            row_data[2] = mrn
+            if len(awb) == 11 and awb.isdigit():
+                row_data[8] = slo_acc.get(row_data[9], row_data[9])
             data.append(row_data)
-            mno.discard(row_data[0][-18:])
+            mno.discard(mrn)
+            mno.discard(awb)
     
     with open('obracun.csv','w',encoding='utf-8') as dat:
         for tab in data:
