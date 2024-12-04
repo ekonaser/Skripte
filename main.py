@@ -6,7 +6,7 @@ import os
 ######################################################################################################################
 ######################################################################################################################
 
-def zamenjaj_z_none(row):
+def zamenjaj_z_none(row) -> list:
     return ['None' if not value else value for value in row]
 
 # razred trinet
@@ -14,7 +14,7 @@ def zamenjaj_z_none(row):
 ######################################################################################################################
 class strankaTrinet:
     
-    def __init__(self, tab: list):
+    def __init__(self, tab: list) -> None:
         """Konstruktor nam podatke iz podane tabele razvrsti kot
             naslednje atribute.
         """
@@ -49,7 +49,7 @@ class strankaTrinet:
 ######################################################################################################################
 class strankaObracun:
     
-    def __init__(self, tab: list):
+    def __init__(self, tab: list) -> None:
         """Konstruktor nam podatke iz podane tabele razvrsti kot
             naslednje atribute.
         """
@@ -183,7 +183,8 @@ class strankaObracun:
 ######################################################################################################################
 ######################################################################################################################
 
-def main():
+def main() -> None:
+    """"Glavna funkcija skripte"""
     with open('trinet.csv', 'r', newline='', encoding="UTF-8") as infile:
         reader = csv.reader(infile, delimiter=';')
         rows = [zamenjaj_z_none(row) for row in reader]
