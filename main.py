@@ -184,7 +184,7 @@ class strankaObracun:
 ######################################################################################################################
 
 def main() -> None:
-    """"Glavna funkcija skripte"""
+    """Glavna funkcija skripte"""
     with open('trinet.csv', 'r', newline='', encoding="UTF-8") as infile:
         reader = csv.reader(infile, delimiter=';')
         rows = [zamenjaj_z_none(row) for row in reader]
