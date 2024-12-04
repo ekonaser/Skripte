@@ -3,7 +3,7 @@ import os
 import xml.etree.ElementTree as ET
 
 def pretvori_v_csv(pot):
-    """Metoda nam specificno pretvori 'xml' datoteko zamaskirano kot xls v csv"""
+    """Funkcija nam specificno pretvori 'xml' datoteko zamaskirano kot xls v csv"""
     tree = ET.parse(pot)
     root = tree.getroot()
 
