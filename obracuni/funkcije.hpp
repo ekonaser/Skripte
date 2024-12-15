@@ -153,7 +153,16 @@ void FDX(const vector<vector<string>>& mat) {
     float st;
     for(vector<string> vek : mat) {
         int i = 1;
-        worksheet_write_number(ws, vr, 0, stoll(vek[0]), format_int);
+        if (vek[7] == "DDP") {
+            vek[8] = "SHIPPER";
+        } else {
+            vek[8] = "RECEIVER";
+        }
+        try {
+            worksheet_write_number(ws, vr, 0, stoll(vek[0]), format_int);
+        } catch (invalid_argument) {
+            worksheet_write_string(ws, vr, 0, vek[0].c_str(), NULL);
+        }
         for (;i < 11; ++i) {
             worksheet_write_string(ws, vr, i, vek[i].c_str(), NULL);
         }
