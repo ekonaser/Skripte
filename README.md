@@ -1,4 +1,4 @@
-<h2>Skripte za optimizacijo poslovnih procesov v podjetju <span style="color: #4D148C">Fed</span>Ex</h2>
+<h2>Skripte za optimizacijo poslovnih procesov v podjetju <span style="color: #4D148C;">Fed</span>Ex</h2>
 
 V 3 mapah:
 - obracuni
