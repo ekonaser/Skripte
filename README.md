@@ -1,9 +1,10 @@
 ## Skripte za optimizacijo poslovnih procesov v podjetju FedEx
 
-V 3 mapah:
+V 4 mapah:
 - `obracuni`
 - `distribucija`
 - `manifest`
+- `VBA`
 
 so skripte za optimizacijo vsakega od "poimenovanih" procesov, katere služijo za pohitritev. Kar je bolj pomembno od pohitritve je natančnost
 saj pri računanju, skripte/programi se ne bodo zmotili.
