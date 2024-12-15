@@ -11,8 +11,8 @@ saj pri računanju, skripte/programi se ne bodo zmotili.
 Koda je tudi ponekod komentirana za boljše razumevanje, kako neka stvar deluje. Prav tako sem si nekje pomagal z umetno inteligenco,
 kar je v kodi opazno s poimenovanjem ang. spremenljivk.
 
-Uporabljena je tudi knjižnica za izdelavo `.xlsx` Excelovih tabel ter `Qt6` Python knjižnica za idelavo vizualnega programa (v glavnem za distribucijo)
-katere si ne lastim. Izdane so pod odprtokodno licenco in so brezplačne:
+Uporabljena je tudi knjižnica za izdelavo `.xlsx` Excelovih tabel ter `Qt6` Python knjižnica za idelavo vizualnega programa (v glavnem za distribucijo).
+Izdane so pod odprtokodno licenco in so brezplačne. Nobeno od spodnjih naštetih knjižnic si ne lastim:
 - **[xlsxwriter](https://pypi.org/project/XlsxWriter/)**
 - **[libxlsxwriter](https://github.com/jmcnamara/libxlsxwriter)** - knjižnica za C++
 - **[PyQt6](https://pypi.org/project/PyQt6/)**
