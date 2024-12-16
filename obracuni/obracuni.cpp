@@ -104,8 +104,11 @@ int main() {
     unordered_map<string, string> slo_acc_num = ustvariSlovar("navadna_acc.csv", 1, 0);
     // matrika podatkov
     vector<vector<string>> mat_pod;
+    // matrike za razvrscanje
     vector<vector<string>> mat_fdx;
-    vector<vector<string>> mat_tnt;
+    vector<vector<string>> mat_tnt_nav;
+    vector<vector<string>> mat_tnt_ddp;
+    vector<vector<string>> mat_tnt_fiz;
     mat_pod = izlusci("obracun_tlm.xls");
     
     for (vector vek : mat_pod) {
@@ -122,11 +125,15 @@ int main() {
                 if (vek[7] == "") {
                     vek[7] = "CPT";
                 }
-                if (size(vek[0]) == 12) {
+                // prvo se poracuna and sele nato or
+                if (vek[0].size() == 12) {
                     mat_fdx.push_back(vek);
-                }
-                if (size(vek[0]) == 11) {
-                    mat_tnt.push_back(vek);
+                } else if ((vek[0].size() == 11) && (vek[7] != "DDP") && ((vek[9].find("O") == string::npos) || (vek[9].find("SIA") == string::npos))) {
+                    mat_tnt_nav.push_back(vek);
+                } else if ((vek[0].size() == 11) && (vek[7] == "DDP")) {
+                    mat_tnt_ddp.push_back(vek);
+                } else if ((vek[0].size() == 11) && (vek[7] != "DDP") && ((vek[9].find("O") != string::npos) || (vek[9].find("SIA") != string::npos))) {
+                    mat_tnt_fiz.push_back(vek);
                 }
                 for (string celica : vek) {
                     dat << celica << ";";
@@ -136,6 +143,7 @@ int main() {
     }
     dat.close();
     FDX(mat_fdx);
+    TNT_NAV(mat_tnt_nav);
     system("pause");
     return 0;
 }
