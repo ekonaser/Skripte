@@ -176,8 +176,8 @@ int FDX(const vector<vector<string>>& mat) {
         }
         if (vek[24] == "ROD") {
             niz = ocisti_niz(vek[16], ".", "\0");
-            st = round(stof(ocisti_niz(niz, ",", ".")) * 100.0) / 100.0 * 0.22;
-            worksheet_write_number(ws, vr, 25, st, format_dec);
+            st = stof(ocisti_niz(niz, ",", ".")) * 0.22;
+            worksheet_write_number(ws, vr, 25, round(st * 100.0) / 100.0, format_dec);
             worksheet_write_number(ws, vr, 26, round((skupaj + st) * 100.0) / 100.0, format_dec);
         }
         ++vr;
