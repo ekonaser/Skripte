@@ -128,11 +128,11 @@ int main() {
                 // prvo se poracuna and sele nato or
                 if (vek[0].size() == 12) {
                     mat_fdx.push_back(vek);
-                } else if ((vek[0].size() == 11) && (vek[7] != "DDP") && ((vek[9].find("O") == string::npos) || (vek[9].find("SIA") == string::npos))) {
+                } else if ((vek[0].size() == 11) && (vek[7] != "DDP") && (vek[9].find("O") == std::string::npos) && (vek[9].find("SIA") == std::string::npos)) {
                     mat_tnt_nav.push_back(vek);
                 } else if ((vek[0].size() == 11) && (vek[7] == "DDP")) {
                     mat_tnt_ddp.push_back(vek);
-                } else if ((vek[0].size() == 11) && (vek[7] != "DDP") && ((vek[9].find("O") != string::npos) || (vek[9].find("SIA") != string::npos))) {
+                } else if ((vek[0].size() == 11) && (vek[7] != "DDP") && ((vek[9].find("O") != std::string::npos) || (vek[9].find("SIA") != std::string::npos))) {
                     mat_tnt_fiz.push_back(vek);
                 }
                 for (string celica : vek) {
@@ -144,6 +144,8 @@ int main() {
     dat.close();
     FDX(mat_fdx);
     TNT_NAV(mat_tnt_nav);
+    TNT_ISB(mat_tnt_ddp);
+    TNT_PRIVATE(mat_tnt_fiz);
     system("pause");
     return 0;
 }
