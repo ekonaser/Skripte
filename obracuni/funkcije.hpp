@@ -11,10 +11,30 @@
 #include <set>
 #include <cmath>
 #include <cstdio>
+#include <ctime>
 
 #include "xlsxwriter.h"
 
 using namespace std;
+
+string zfill(string niz, int vel) {
+    //Funkcija nam zapolni niz z "0"
+    //pred dano stevilko zeljenje velikosti
+    string st(vel - niz.length(), '0');
+    return st + niz;
+}
+
+
+//trenutni cas
+time_t cas = time(0);
+tm* zdaj = localtime(&cas);
+
+// Get the year
+string leto = to_string(zdaj->tm_year + 1900);
+// Use ostringstream to format the month with leading zeros
+string mesec = zfill(to_string(zdaj->tm_mon + 1), 2);
+// Get the day of the month
+string dan = zfill(to_string(zdaj->tm_mday),2);
 
 string ocisti_niz(string stavek, string vzorec, string zamenjava = " ") {
     int pos = 0;
@@ -32,7 +52,7 @@ int FDX(const vector<vector<string>>& mat) {
     if (mat.empty()) {
         return 0;
     }
-    string ime_dat = "VAT AND DUTIES DD.MM.LLLL FEDEX.xlsx";
+    string ime_dat = "VAT AND DUTIES " + dan + "." + mesec + "." + leto + " FEDEX.xlsx";
     lxw_workbook  *wb  = workbook_new(ime_dat.c_str());
     lxw_worksheet *ws = workbook_add_worksheet(wb, "FDX");
 
@@ -141,14 +161,15 @@ int FDX(const vector<vector<string>>& mat) {
     worksheet_autofilter(ws, 3, 0, 3, 26);
 
     int vr = 4;
-    string niz;
-    float st;
+    // niz2, st2 = imenovanje dodatnih postavk
+    string niz, niz2;
+    float st, st2;
     for(vector<string> vek : mat) {
         int i = 1;
         if (vek[7] == "DDP") {
-            vek[8] = "SHIPPER";
+            vek[10] = "SHIPPER";
         } else {
-            vek[8] = "RECEIVER";
+            vek[10] = "RECEIVER";
         }
         try {
             worksheet_write_number(ws, vr, 0, stoll(vek[0]), format_int);
@@ -175,10 +196,25 @@ int FDX(const vector<vector<string>>& mat) {
             worksheet_write_string(ws, vr, i, vek[i].c_str(), NULL);
         }
         if (vek[24] == "ROD") {
+            // st2 = dodatna imenovanja, po defaultu = 0.0
+            st2 = 0.0;
             niz = ocisti_niz(vek[16], ".", "\0");
-            st = stof(ocisti_niz(niz, ",", ".")) * 0.22;
-            worksheet_write_number(ws, vr, 25, round(st * 100.0) / 100.0, format_dec);
-            worksheet_write_number(ws, vr, 26, round((skupaj + st) * 100.0) / 100.0, format_dec);
+            if (vek[14] != "") {
+                niz2 = ocisti_niz(vek[14], ".", "\0");
+                try {
+                    st2 = stof(ocisti_niz(niz2, ",", ".")) * 0.22;
+                } catch (invalid_argument) {
+                    st2 = 0.0;
+                }
+            }
+            try {
+                st = stof(ocisti_niz(niz, ",", ".")) * 0.22;
+            } catch (invalid_argument) {
+                st = 0.0;
+            }
+            worksheet_write_number(ws, vr, 25, round((st + st2) * 100.0) / 100.0, format_dec);
+            worksheet_write_number(ws, vr, 26, round((skupaj + st + st2) * 100.0) / 100.0, format_dec);
+            worksheet_write_string(ws, vr, 10, "PRE-PAYMENT", NULL);
         }
         ++vr;
     }
@@ -194,7 +230,7 @@ int TNT_NAV(const vector<vector<string>>& mat) {
     if (mat.empty()) {
         return 0;
     }
-    string ime_dat = "VAT AND DUTIES DD.MM.LLLL NAVADNA.xlsx";
+    string ime_dat = "VAT AND DUTIES " + dan + "." + mesec + "." + leto + " NAVADNA.xlsx";
     lxw_workbook  *wb  = workbook_new(ime_dat.c_str());
     lxw_worksheet *ws = workbook_add_worksheet(wb, "TNT");
 
@@ -301,9 +337,9 @@ int TNT_NAV(const vector<vector<string>>& mat) {
             worksheet_write_string(ws, vr, i, vek[i].c_str(), NULL);
         }
         worksheet_write_string(ws, vr, 4, vek[8].c_str(), NULL);
-        worksheet_write_string(ws, vr, 5, vek[7].c_str(), NULL);
+        worksheet_write_string(ws, vr, 5, vek[10].c_str(), NULL);
         worksheet_write_string(ws, vr, 6, vek[9].c_str(), NULL);
-        worksheet_write_string(ws, vr, 7, vek[10].c_str(), NULL);
+        worksheet_write_string(ws, vr, 7, vek[7].c_str(), NULL);
         i = 11;
         for (;x < 25; ++x) {
             try {
@@ -330,7 +366,7 @@ int TNT_ISB(const vector<vector<string>>& mat) {
     if (mat.empty()) {
         return 0;
     }
-    string ime_dat = "VAT AND DUTIES DD.MM.LLLL ISB OUT.xlsx";
+    string ime_dat = "VAT AND DUTIES " + dan + "." + mesec + "." + leto + " ISB OUT.xlsx";
     lxw_workbook  *wb  = workbook_new(ime_dat.c_str());
     lxw_worksheet *ws = workbook_add_worksheet(wb, "TNT");
 
@@ -466,7 +502,7 @@ int TNT_PRIVATE(const vector<vector<string>>& mat) {
     if (mat.empty()) {
         return 0;
     }
-    string ime_dat = "VAT AND DUTIES DD.MM.LLLL PRIVATE INDIVIDUALS.xlsx";
+    string ime_dat = "VAT AND DUTIES " + dan + "." + mesec + "." + leto + " PRIVATE INDIVIDUAL.xlsx";
     lxw_workbook  *wb  = workbook_new(ime_dat.c_str());
     lxw_worksheet *ws = workbook_add_worksheet(wb, "TNT");
 
@@ -577,9 +613,9 @@ int TNT_PRIVATE(const vector<vector<string>>& mat) {
         }
         
         worksheet_write_number(ws, vr, 7, 24914, format_int);
-        worksheet_write_string(ws, vr, 8, vek[7].c_str(), NULL);
+        worksheet_write_string(ws, vr, 8, vek[10].c_str(), NULL);
         worksheet_write_string(ws, vr, 9, vek[9].c_str(), NULL);
-        worksheet_write_string(ws, vr, 10, vek[10].c_str(), NULL);
+        worksheet_write_string(ws, vr, 10, vek[7].c_str(), NULL);
 
         i = 11;
         for (;x < 25; ++x) {
@@ -599,4 +635,5 @@ int TNT_PRIVATE(const vector<vector<string>>& mat) {
     workbook_close(wb);
     return 0;
 }
+
 #endif // FUNKCIJE
