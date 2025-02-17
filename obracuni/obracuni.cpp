@@ -2,7 +2,7 @@
 
 //###################################FUNKCIJE###################################//
 
-vector<string> razdeli(string stavek, char del = L';') {
+vector<string> razdeli(string stavek, char del = ';') {
     /*Funkcija nam vhodni niz razdeli s pomocjo podanega locila*/
     stringstream tok_niza(stavek);
     vector<string> sez_bes;
@@ -66,7 +66,7 @@ vector<vector<string>> izlusci(const string datoteka) {
     */
     vector<vector<string>> podatki;
     ifstream dat(datoteka);
-    string vr;
+    string vr, niz;
     while (getline(dat, vr)) {
         // poiscemo vrstico pri kateri se podatki zacnejo
         if (vr.find("<Row") != string::npos) {
@@ -75,16 +75,22 @@ vector<vector<string>> izlusci(const string datoteka) {
                 // Dodamo samo tisto vrstico v kateri so podatki
                 if (vr.find("<Cell ss:Index=") != string::npos) {
                     vrstica.push_back("");
-                } else if (vr.find("<Data ss:Type=\"String\">") != string::npos) {
-                    // -30 zaradi tega ker je 'prazna' celica dolzine 30
-                    // se prej pa ocistimo niz od '\n' oz. '&#10'
+                    niz = "";
+                } else if (vr.find("<Data ss:Type") != string::npos) {
+                    // ocistimo niz od '\n' oz. '&#10'
                     // in od & znaka oz. &amp;
                     if (vr.find("&#10;") != string::npos) {
                         vr = ocisti_niz(vr, "&#10;");
                     } else if (vr.find("&amp;") != string::npos) {
                         vr = ocisti_niz(vr, "&amp;", "&");
                     }
-                    vrstica.back() = vr.substr(23,size(vr)-30);
+                    for (char znak: vr.substr(23)) {
+                        if (znak == '<') {
+                            break;
+                        }
+                        niz += znak;
+                    }
+                    vrstica.back() = niz;
                 } else if (vr.find("</Row>") != string::npos) {
                     podatki.push_back(vrstica);
                     break;
@@ -113,8 +119,13 @@ int main() {
     
     for (vector vek : mat_pod) {
         if (size(vek[0]) > 12) {
-            vek[0].erase(remove(vek[0].begin(), vek[0].end(), ' '), vek[0].end());
-            vek[0] = razdeli(vek[0],'-')[1];
+            try {
+                vek[0].erase(remove(vek[0].begin(), vek[0].end(), ' '), vek[0].end());
+                vek[0] = razdeli(vek[0],'-')[1];
+            } catch (length_error) {
+                cout << "neveljavna AWB stevilka: " << vek[0] << "\n";
+                vek[0] = "0";
+            }
         }
         if (slovar_parov.kljuci().count(vek[0]) > 0 || 
             slovar_parov.vrednosti().count(vek[2]) > 0 ||
@@ -122,7 +133,7 @@ int main() {
                 if (slo_acc_num.count(vek[9]) > 0 && size(vek[0]) == 11) {
                     vek[8] = slo_acc_num[vek[9]];
                 }
-                if (vek[7] == "") {
+                if ((vek[7] == "") || (vek[7] == "NCTS")) {
                     vek[7] = "CPT";
                 }
                 // prvo se poracuna and sele nato or
