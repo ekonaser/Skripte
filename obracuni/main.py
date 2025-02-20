@@ -168,6 +168,9 @@ class strankaObracun:
         if self.cg1 != 'None' and self.cl5 == '0' and self.opravilna_stevilka == 'DDP' and self.cl0 == '0':
             self.spremeni_atribute()
             return None
+        if self.cg1 == self.customer_name2 and self.cl0 != '0':
+            self.vtb = ''
+            self.dta = ''
         
         #self.hf = ''
         # self.cl0 je stevilka ki eskalira za 8 krat ko je vec kot 5 zato je ne smes spremeniti
@@ -279,3 +282,4 @@ if __name__ == '__main__':
     main()
     koncni_cas = time.time()
     print(f"{koncni_cas - zacetni_cas:.2f} sek")
+
