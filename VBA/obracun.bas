@@ -43,8 +43,8 @@ Function Cl5_Funkcija(st1 As Variant, st2 As Variant) As Variant
         poracunana = st * 0.3
         If poracunana = 0 Then
             Cl5_Funkcija = ""
-        ElseIf poracunana <= 5 Then
-            Cl5_Funkcija = 5
+        ElseIf poracunana <= 8 Then
+            Cl5_Funkcija = 8
         Else
             Cl5_Funkcija = poracunana
         End If
